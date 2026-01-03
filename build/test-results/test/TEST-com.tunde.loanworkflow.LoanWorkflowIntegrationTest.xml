@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tunde.loanworkflow.LoanWorkflowIntegrationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-01-03T13:06:57.042Z" hostname="OJs-MacBook-Pro.local" time="0.621">
+  <properties/>
+  <testcase name="testCompleteWorkflow()" classname="com.tunde.loanworkflow.LoanWorkflowIntegrationTest" time="0.621"/>
+  <system-out><![CDATA[14:06:53.918 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.tunde.loanworkflow.LoanWorkflowIntegrationTest]: LoanWorkflowIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+14:06:54.011 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.tunde.loanworkflow.Main for test class com.tunde.loanworkflow.LoanWorkflowIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.0)
+
+2026-01-03T14:06:54.363+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] c.t.l.LoanWorkflowIntegrationTest        : Starting LoanWorkflowIntegrationTest using Java 17.0.8.1 with PID 90005 (started by jasonojulari in /Users/jasonojulari/Desktop/loan-workflow-1)
+2026-01-03T14:06:54.365+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] c.t.l.LoanWorkflowIntegrationTest        : No active profile set, falling back to 1 default profile: "default"
+2026-01-03T14:06:55.005+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-01-03T14:06:55.031+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 0 JPA repository interfaces.
+2026-01-03T14:06:55.373+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-01-03T14:06:55.510+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3e39f08c
+2026-01-03T14:06:55.512+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-01-03T14:06:55.538+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-01-03T14:06:55.588+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 7.1.8.Final
+2026-01-03T14:06:55.954+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-01-03T14:06:56.049+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/loan_app_db?useSSL=false&serverTimezone=UTC]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 9.5
+	Default catalog/schema: loan_app_db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DatasourceConnectionProviderImpl
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-01-03T14:06:56.364+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-01-03T14:06:56.374+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+Connected to MySQL database!
+Connected to MySQL database!
+Connected to MySQL database!
+Connected to MySQL database!
+2026-01-03T14:06:56.564+01:00  WARN 90005 --- [Loan Application Workflow] [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-01-03T14:06:57.032+01:00  INFO 90005 --- [Loan Application Workflow] [    Test worker] c.t.l.LoanWorkflowIntegrationTest        : Started LoanWorkflowIntegrationTest in 2.893 seconds (process running for 4.06)
+Connected to MySQL database!
+Applicant added: jay Doe (ID: 11)
+Approved loan recorded. Total = 2050.0
+Approved loan recorded. Total = 1742.5
+
+All loans for jay Doe:
+Loan ID: 9, Requested: 2000.0, Approved: 2050.0, Remaining: 2050.0, Fully Paid: false, Status: APPROVED
+Loan ID: 10, Requested: 2500.0, Approved: 1742.5, Remaining: 1742.5, Fully Paid: false, Status: APPROVED
+Loan ID: 11, Requested: 1500.0, Approved: 0.0, Remaining: 0.0, Fully Paid: false, Status: REJECTED
+
+All applicants in system:
+Applicant ID: 1, Name: ade, Email: ade@gmail.com, Account Balance: 10000.0, Approved Loan Amount: 86000.0
+Applicant ID: 2, Name: , Email: , Account Balance: 0.0, Approved Loan Amount: 0.0
+Applicant ID: 3, Name: ttt, Email: mmm@gmail.com, Account Balance: 10000.0, Approved Loan Amount: 0.0
+Applicant ID: 4, Name: John Doe, Email: john@example.com, Account Balance: 19000.0, Approved Loan Amount: 3792.5
+Applicant ID: 7, Name: jj Doe, Email: jj@example.com, Account Balance: 16950.0, Approved Loan Amount: 3792.5
+Applicant ID: 11, Name: jay Doe, Email: jay@example.com, Account Balance: 19000.0, Approved Loan Amount: 3792.5
+
+Approved loans for applicant:
+Loan ID: 8, ApplicationID: 9, Amount: 2050.0, Status: ACTIVE, IssuedAt: 2026-01-03 14:06:57
+Loan ID: 9, ApplicationID: 10, Amount: 1742.5, Status: ACTIVE, IssuedAt: 2026-01-03 14:06:57
+
+All Loans in loan Table:
+Loan ID: 8, ApplicantID: 11, ApplicationID: 9, Amount: 2050.0, Status: ACTIVE, IssuedAt: 2026-01-03 14:06:57
+Loan ID: 9, ApplicantID: 11, ApplicationID: 10, Amount: 1742.5, Status: ACTIVE, IssuedAt: 2026-01-03 14:06:57
+Loan ID: 6, ApplicantID: 7, ApplicationID: 6, Amount: 2050.0, Status: PAID-OFF, IssuedAt: 2026-01-03 07:37:10
+Loan ID: 7, ApplicantID: 7, ApplicationID: 7, Amount: 1742.5, Status: ACTIVE, IssuedAt: 2026-01-03 07:37:10
+Loan ID: 4, ApplicantID: 4, ApplicationID: 3, Amount: 2050.0, Status: ACTIVE, IssuedAt: 2026-01-03 07:32:33
+Loan ID: 5, ApplicantID: 4, ApplicationID: 4, Amount: 1742.5, Status: ACTIVE, IssuedAt: 2026-01-03 07:32:33
+Loan ID: 3, ApplicantID: 3, ApplicationID: 2, Amount: 0.0, Status: ACTIVE, IssuedAt: 2026-01-03 01:03:55
+Loan ID: 2, ApplicantID: 3, ApplicationID: 2, Amount: 0.0, Status: ACTIVE, IssuedAt: 2026-01-03 01:00:48
+Loan ID: 1, ApplicantID: 1, ApplicationID: 1, Amount: 86000.0, Status: ACTIVE, IssuedAt: 2026-01-02 02:05:57
+
+Loan Payments:
+Making payments for Loan ID: 8 (ApplicationID: 9)
+Partial payment made: 500.0, Remaining balance: 1550.0
+Final payment made: 1550.0, Remaining balance: 0.0
+
+All payments for Loan ID: 8
+Payment ID: 4, Amount Paid: 500.0, Remaining Balance: 1550.0, Paid At: 2026-01-03 14:06:57
+Payment ID: 5, Amount Paid: 1550.0, Remaining Balance: 0.0, Paid At: 2026-01-03 14:06:57
+
+All payments by Applicant ID: 11
+Payment ID: 4, Loan ID: 8, Amount Paid: 500.0, Remaining Balance: 1550.0, Paid At: 2026-01-03 14:06:57
+Payment ID: 5, Loan ID: 8, Amount Paid: 1550.0, Remaining Balance: 0.0, Paid At: 2026-01-03 14:06:57
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

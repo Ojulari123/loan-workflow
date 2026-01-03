@@ -1,0 +1,8 @@
+com.tunde.loanworkflow
+com.tunde.loanworkflow.config
+com.tunde.loanworkflow.controller
+com.tunde.loanworkflow.dto
+com.tunde.loanworkflow.enums
+com.tunde.loanworkflow.exception
+com.tunde.loanworkflow.model
+com.tunde.loanworkflow.service
