@@ -1,206 +1,121 @@
-# Loan Application Workflow API
+# Loan Workflow
 
-A Spring Boot REST API for managing loan applications, applicants, and payments with MySQL database integration and Swagger UI documentation.
+An AI-powered loan-workflow application. It is a monorepo containing a Spring Boot API (`backend/`) and a React + Vite app (`frontend/`), plus an AI underwriter powered by Claude **Sonnet 5**.
 
----
+## Overview
+
+The app has two roles that share a single data store:
+
+- **Customer** — apply for a loan, track application status, and make payments.
+- **Northline Capital Staff** — review applications, approve or reject them, and see the portfolio view.
+
+Both roles read and write the same MySQL-backed records.
+
+**Stack**
+
+- **Backend** — Spring Boot 4 (Java 17), raw JDBC to MySQL.
+- **Frontend** — React 19 + Vite + TypeScript + Tailwind v4.
+- **AI** — Claude **Sonnet 5** via the official Anthropic Java SDK, providing an explainable credit-underwriting assessment.
 
 ## Prerequisites
 
-- Java 17+
-- Gradle
-- MySQL
+- **Java 17**
+- **Node.js 18+** and **npm**
+- **MySQL** running locally on **port 3307**, with a database named `loan_app_db`. The app connects as user `admin` with password `admin123`. The schema lives in `backend/src/main/resources/tables.sql`.
+- An **Anthropic API key** (for the AI underwriter).
 
----
+## Setup
 
-## Database Setup
+### Database
 
-### 1. Create the Database(SQL)
+Create the `loan_app_db` database and tables from the bundled schema, for example:
 
-CREATE DATABASE loan_app_db;
+```bash
+mysql -h 127.0.0.1 -P 3307 -u admin -p < backend/src/main/resources/tables.sql
+```
 
-### 2. Configure Database Connection
+### Anthropic API key
 
-The database connection is configured in `DBConfig.java`:
+Copy the example env file and set your key:
 
-public static final String URL = "jdbc:mysql://localhost:3306/loan_app_db?useSSL=false&serverTimezone=UTC";
-public static final String USER = "admin";
-public static final String PASSWORD = "admin123";
+```bash
+cp backend/.env.example backend/.env
+# then edit backend/.env and set:
+# ANTHROPIC_API_KEY=sk-ant-...
+```
 
-Make sure your MySQL server is running with these credentials, or update them to match your setup.
+The backend reads `backend/.env` automatically. Without a key the app still runs, but the
+AI-assessment endpoint returns **HTTP 502** (`AI underwriting unavailable`).
 
----
+> `backend/.env` is gitignored — never commit your key.
 
-## Running the Application
+## Run it (two terminals)
 
-### Using Gradle
+1. **Backend**
 
-# Navigate to project directory
-cd loanworkflow
+   ```bash
+   cd backend && ./gradlew bootRun
+   ```
 
-# Build the project
-gradle build
+   Serves <http://localhost:8080>. Wait for the log line `Tomcat started on port 8080`.
 
-# Run the application
-gradle bootRun
+2. **Frontend**
 
-The application will start on `http://localhost:8080`
+   ```bash
+   cd frontend && npm install && npm run dev
+   ```
 
----
+   Serves <http://localhost:5173>.
 
-## Accessing Swagger UI
+3. Open <http://localhost:5173> and use the **Customer / Northline · Staff** toggle at the top right to switch roles.
 
-Once the application is running, open your browser and navigate to:
+## Key API endpoints
 
-http://localhost:8080/docs
+Base URL: `http://localhost:8080`
 
-Or access the API documentation directly:
+**Applicants**
 
-http://localhost:8080/api-docs
+- `POST /api/applicants`
+- `GET /api/applicants`
+- `GET /api/applicants/{id}`
 
----
+**Loan applications**
 
-## Application Flow
+- `POST /api/loan-applications/applicant/{applicantId}`
+- `GET /api/loan-applications`
+- `GET /api/loan-applications/{id}`
+- `PUT /api/loan-applications/{applicationId}/status?status=APPROVED|REJECTED[&approvedAmount=...]`
 
-The loan workflow follows this sequence:
+**AI underwriter (Claude Sonnet 5)**
 
-┌─────────────┐     ┌──────────────────┐     ┌─────────┐     ┌─────────────┐
-│  APPLICANT  │ --> │ LOAN APPLICATION │ --> │  LOAN   │ --> │ LOAN PAYMENT│
-└─────────────┘     └──────────────────┘     └─────────┘     └─────────────┘
+- `POST /api/loan-applications/{applicationId}/ai-assessment`
 
-### Step 1: Create an Applicant
+  Returns a structured, explainable credit assessment:
 
-**Endpoint:** `POST /api/applicants`
+  - `riskScore` (0–100)
+  - `recommendation` (`APPROVE` / `REFER` / `DECLINE`)
+  - `recommendedAmount`
+  - `recommendedRate`
+  - `debtToIncomeRatio`
+  - `keyFactors[]`
+  - `redFlags[]`
+  - `rationale`
+  - `summary`
 
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "accountBalance": 10000.00
-}
+  Advisory only — it does **not** change the loan status.
 
-### Step 2: Apply for a Loan
+**Loans & payments**
 
-**Endpoint:** `POST /api/loan-applications/applicant/{applicantId}`
+- `GET /api/loans`
+- `POST /api/payments/loan/{loanId}`
+- `GET /api/payments`
 
-{
-  "amountRequested": 5000.00
-}
+**API docs**
 
-Status will be set to `PENDING`.
+- Swagger UI at <http://localhost:8080/docs>
 
-### Step 3: Approve/Reject the Loan Application
+## Notes / current state
 
-**Endpoint:** `PUT /api/loan-applications/{applicationId}/status`
-
-Query Parameters:
-- `status`: `APPROVED`, `REJECTED`
-- `approvedAmount` (optional): Custom approved amount
-
-When approved:
-- Interest is automatically calculated and added (2.5% - 7.5% based on amount)
-- A new `Loan` record is created in the `loan` table
-
-### Step 4: Make Loan Payments
-
-**Endpoint:** `POST /api/payments/loan/{loanId}`
-
-{
-  "amount": 1000.00
-}
-
-- Payment is deducted from applicant's account balance
-- Remaining loan balance is updated
-- When fully paid, loan status changes from `ACTIVE` to `PAID-OFF`
-
----
-
-## API Endpoints Summary
-
-### Applicants (`/api/applicants`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/applicants` | Create new applicant |
-| GET | `/api/applicants` | Get all applicants |
-| GET | `/api/applicants/{id}` | Get applicant by ID |
-
-### Loan Applications (`/api/loan-applications`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/loan-applications/applicant/{applicantId}` | Apply for a loan |
-| GET | `/api/loan-applications` | Get all applications |
-| GET | `/api/loan-applications/{applicationId}` | Get application by ID |
-| GET | `/api/loan-applications/applicant/{applicantId}` | Get applications by applicant |
-| PUT | `/api/loan-applications/{applicationId}/status` | Update application status |
-
-### Loans (`/api/loans`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/loans` | Get all loans |
-| GET | `/api/loans/{id}` | Get loan by ID |
-| GET | `/api/loans/applicant/{applicantId}` | Get loans by applicant |
-
-### Loan Payments (`/api/payments`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/payments/loan/{loanId}` | Make a payment |
-| GET | `/api/payments` | Get all payments |
-| GET | `/api/payments/loan/{loanId}` | Get payments by loan |
-| GET | `/api/payments/applicant/{applicantId}` | Get payments by applicant |
-
----
-
-## Interest Rates
-
-Interest is automatically calculated when a loan is approved:
-
-| Loan Amount | Interest Rate |
-|-------------|---------------|
-| ≤ 10,000 | 2.5% |
-| ≤ 50,000 | 5.0% |
-| > 50,000 | 7.5% |
-
----
-
-## Loan Statuses
-
-| Status | Description |
-|--------|-------------|
-| `PENDING` | Application submitted, awaiting review |
-| `APPROVED` | Application approved, loan is active |
-| `REJECTED` | Application denied |
-| `ACTIVE` | Loan is currently being repaid |
-| `PAID-OFF` | Loan has been fully repaid |
-
----
-
-## Project Structure
-
-src/main/java/com/tunde/loanworkflow/
-├── config/
-│   ├── DBConfig.java
-│   └── DBConnection.java
-├── controller/
-│   ├── ApplicantController.java
-│   ├── LoanApplicationController.java
-│   ├── LoanController.java
-│   ├── LoanPaymentController.java
-│   └── WelcomeController.java
-├── dto/
-│   ├── ApplicantRequest.java
-│   ├── LoanApplicationRequest.java
-│   └── LoanPaymentRequest.java
-├── enums/
-│   └── LoanStatus.java
-├── exception/
-│   ├── LoanException.java
-│   ├── LoanMessage.java
-│   └── GlobalExceptionHandler.java
-├── model/
-│   ├── Applicant.java
-│   ├── Loan.java
-│   ├── LoanApplication.java
-│   └── LoanPayment.java
-├── service/
-│   └── LoanService.java
-└── OpenAPIConfig.java
-
----
+- The AI underwriter is live at the API layer today; the staff-facing UI panel that displays the assessment is in progress.
+- CORS allows `http://localhost:5173`. There is **no authentication** on the API (this is a demo).
+- A backup of the original project is at `~/Desktop/loan-workflow-backup-*`.

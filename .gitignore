@@ -1,0 +1,19 @@
+# --- Build artifacts / caches ---
+.gradle/
+backend/build/
+backend/bin/
+bin/
+
+# --- Frontend ---
+frontend/node_modules/
+frontend/dist/
+
+# --- Secrets (never commit real env files) ---
+**/.env
+backend/.env
+!.env.example
+!**/.env.example
+
+# --- OS / logs ---
+.DS_Store
+*.log
