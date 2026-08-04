@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Loan, LoanApplication, LoanPayment, fmtUSD, fmtPct, recoverBase, round2 } from '../model';
 import { Card, Button, Money, StatusBadge, StatTile, ProgressRing } from '../primitives';
-import { IconWallet, IconArrowRight, IconRepay } from '../icons';
+import { IconWallet, IconArrowRight, IconRepay, IconChevronRight } from '../icons';
+import * as api from '@/lib/api';
 export const DashboardScreen: React.FC<{
   loan: Loan;
   application: LoanApplication;
@@ -24,6 +25,31 @@ export const DashboardScreen: React.FC<{
   const repaid = round2(loanAmount - remaining);
   const pctRepaid = loanAmount > 0 ? repaid / loanAmount * 100 : 0;
   const loanPayments = payments.filter(p => p.loanId === loan.id);
+
+  // Amortization schedule — the planned per-payment principal/interest split.
+  // Fetched lazily the first time the borrower expands the panel. The endpoint
+  // 400s for non-APPROVED applications; we surface that message inline instead
+  // of the table (this dashboard is only reached for active/approved loans, so
+  // it should normally succeed).
+  const [schedOpen, setSchedOpen] = useState(false);
+  const [sched, setSched] = useState<api.AmortizationRow[] | null>(null);
+  const [schedLoading, setSchedLoading] = useState(false);
+  const [schedError, setSchedError] = useState<string | null>(null);
+  const toggleSchedule = () => {
+    const next = !schedOpen;
+    setSchedOpen(next);
+    if (next && sched === null && !schedLoading) {
+      setSchedLoading(true);
+      setSchedError(null);
+      api.getAmortizationSchedule(application.applicationId).then(rows => {
+        setSched(rows);
+      }).catch(e => {
+        setSchedError(e instanceof Error ? e.message : 'Schedule is unavailable right now.');
+      }).finally(() => {
+        setSchedLoading(false);
+      });
+    }
+  };
   return <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -133,5 +159,46 @@ export const DashboardScreen: React.FC<{
           </div>
         </Card>
       </div>
+
+      {/* Amortization schedule — collapsible planned repayment breakdown */}
+      <Card className="p-6">
+        <button type="button" onClick={toggleSchedule} className="flex w-full items-center justify-between gap-3 text-left" aria-expanded={schedOpen}>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-[#101828]">Amortization schedule</span>
+            <span className="mt-0.5 text-xs text-[#667085]">Planned monthly split of principal and interest for this loan.</span>
+          </div>
+          <IconChevronRight size={18} className={`shrink-0 text-[#98a2b3] transition-transform duration-200 ${schedOpen ? 'rotate-90' : ''}`} />
+        </button>
+
+        {schedOpen && <div className="mt-4">
+            {schedLoading && <p className="text-sm text-[#98a2b3]">Loading schedule…</p>}
+            {schedError && <p className="rounded-lg bg-[#fffbeb] px-3 py-2 text-sm text-[#b45309]">{schedError}</p>}
+            {sched && sched.length === 0 && !schedLoading && !schedError && <p className="text-sm text-[#98a2b3]">No schedule available for this loan.</p>}
+            {sched && sched.length > 0 && <div className="overflow-hidden rounded-xl border border-[#e6e9ef]">
+                <div className="max-h-80 overflow-y-auto">
+                  <table className="w-full border-collapse text-sm">
+                    <thead className="sticky top-0 bg-[#f8fafc]">
+                      <tr className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
+                        <th className="px-3 py-2 text-left font-semibold">#</th>
+                        <th className="px-3 py-2 text-right font-semibold">Payment</th>
+                        <th className="px-3 py-2 text-right font-semibold">Principal</th>
+                        <th className="px-3 py-2 text-right font-semibold">Interest</th>
+                        <th className="px-3 py-2 text-right font-semibold">Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#e6e9ef]">
+                      {sched.map(row => <tr key={row.paymentNumber}>
+                          <td className="px-3 py-2 text-left tabular-nums text-[#667085]">{row.paymentNumber}</td>
+                          <td className="px-3 py-2 text-right tabular-nums font-medium text-[#101828]">{fmtUSD(row.paymentAmount)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-[#344054]">{fmtUSD(row.principalPortion)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-[#344054]">{fmtUSD(row.interestPortion)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-[#344054]">{fmtUSD(row.remainingBalance)}</td>
+                        </tr>)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>}
+          </div>}
+      </Card>
     </div>;
 };

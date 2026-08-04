@@ -142,17 +142,40 @@ export function tierFor(amount: number): Tier {
 export function interestRate(amount: number): number {
   return tierFor(amount).rate;
 }
+
+// ---------------------------------------------------------------------------
+// Repayment term — the borrower picks one of these at apply time. Mirrors the
+// backend's accepted set; default matches the backend default.
+// ---------------------------------------------------------------------------
+export const TERM_OPTIONS: readonly number[] = [12, 24, 36, 48] as const;
+export const DEFAULT_TERM_MONTHS = 24;
+
+/**
+ * Standard amortized monthly payment — MUST match the backend formula exactly:
+ *   r = annualRate / 12;  M = P·r / (1 − (1+r)^−n);  when r == 0 → P / n.
+ * (For P=30000, n=36, 5% → 899.13.)
+ */
+export function monthlyPayment(principal: number, annualRate: number, termMonths: number): number {
+  if (termMonths <= 0) return 0;
+  const r = annualRate / 12;
+  const m = r === 0 ? principal / termMonths : principal * r / (1 - Math.pow(1 + r, -termMonths));
+  return round2(m);
+}
+
 export interface Quote {
   principal: number; // the base / approved base
   rate: number;
   interest: number; // principal * rate
   total: number; // principal + interest  (== approvedAmount == total cost of borrowing)
   tier: Tier;
+  termMonths: number; // repayment term used for the monthly figure
+  monthly: number; // estimated amortized monthly payment for principal @ this term
 }
 
 /** The core calculation used by the calculator, the apply preview, the staff
- *  decision screen and approval. */
-export function quote(principal: number): Quote {
+ *  decision screen and approval. `termMonths` drives the monthly-payment
+ *  estimate (defaults to DEFAULT_TERM_MONTHS for callers that don't pick one). */
+export function quote(principal: number, termMonths: number = DEFAULT_TERM_MONTHS): Quote {
   const tier = tierFor(principal);
   const interest = round2(principal * tier.rate);
   return {
@@ -160,7 +183,9 @@ export function quote(principal: number): Quote {
     rate: tier.rate,
     interest,
     total: round2(principal + interest),
-    tier
+    tier,
+    termMonths,
+    monthly: monthlyPayment(principal, tier.rate, termMonths)
   };
 }
 

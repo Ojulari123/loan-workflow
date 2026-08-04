@@ -221,13 +221,43 @@ export function getApplicantById(applicantId: string): Promise<Applicant> {
 
 export function applyForLoan(
   applicantId: string,
-  input: { amountRequested: number; loanPurpose: string },
+  input: { amountRequested: number; loanPurpose: string; termMonths: number },
 ): Promise<LoanApplication> {
   return sendWrapped<RawApplication>(
     `/api/loan-applications/applicant/${applicantId}`,
     'POST',
-    { amountRequested: input.amountRequested, loanPurpose: input.loanPurpose },
+    {
+      amountRequested: input.amountRequested,
+      loanPurpose: input.loanPurpose,
+      termMonths: input.termMonths,
+    },
   ).then(normalizeApplication);
+}
+
+// ---------------------------------------------------------------------------
+// Amortization schedule for an APPROVED application. Unlike the wrapped
+// POST/PUT endpoints, this returns a BARE JSON array (no {message,data}
+// envelope) of per-payment rows. When the application is NOT approved the
+// backend responds 400 with { message: "…only available for APPROVED…" }; we
+// surface that as an ApiError so the UI can hide the table / show a note.
+// ---------------------------------------------------------------------------
+export interface AmortizationRow {
+  paymentNumber: number;
+  paymentAmount: number;
+  principalPortion: number;
+  interestPortion: number;
+  remainingBalance: number;
+}
+
+export async function getAmortizationSchedule(
+  applicationId: string,
+): Promise<AmortizationRow[]> {
+  const res = await fetch(
+    `${BASE}/api/loan-applications/${applicationId}/amortization`,
+  );
+  if (!res.ok) throw new ApiError(await errorMessage(res), res.status);
+  const arr = (await res.json()) as AmortizationRow[];
+  return Array.isArray(arr) ? arr : [];
 }
 
 // ---------------------------------------------------------------------------

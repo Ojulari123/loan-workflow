@@ -135,6 +135,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
       const application = await api.applyForLoan(applicant.id, {
         amountRequested: form.amountRequested,
         loanPurpose: form.loanPurpose,
+        termMonths: form.termMonths,
       });
       setApplicants(prev => upsert(prev, [applicant], a => a.id));
       setApplications(prev => upsert(prev, [application], a => a.applicationId));

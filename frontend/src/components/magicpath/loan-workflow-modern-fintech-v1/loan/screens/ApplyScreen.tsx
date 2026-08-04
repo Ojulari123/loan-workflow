@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { quote, fmtPct, fmtUSD, fmtUSD0 } from '../model';
+import { quote, fmtPct, fmtUSD, fmtUSD0, TERM_OPTIONS, DEFAULT_TERM_MONTHS } from '../model';
 import { Card, Button, Field, inputCls, Money } from '../primitives';
 import { IconArrowRight, IconChevronLeft, IconLock, IconCheck, IconShield } from '../icons';
 export interface ApplyForm {
@@ -8,6 +8,7 @@ export interface ApplyForm {
   accountBalance: number;
   amountRequested: number;
   loanPurpose: string;
+  termMonths: number;
   annualIncome: number;
   monthlyDebt: number;
   employmentStatus: string;
@@ -49,6 +50,7 @@ export const ApplyScreen: React.FC<{
   const [accountBalance, setAccountBalance] = useState('');
   const [amountRequested, setAmountRequested] = useState(String(initialAmount));
   const [loanPurpose, setLoanPurpose] = useState(LOAN_PURPOSES[0]);
+  const [termMonths, setTermMonths] = useState(DEFAULT_TERM_MONTHS);
   const [annualIncome, setAnnualIncome] = useState('');
   const [monthlyDebt, setMonthlyDebt] = useState('');
   const [employmentStatus, setEmploymentStatus] = useState(EMPLOYMENT_STATUSES[0]);
@@ -75,7 +77,7 @@ export const ApplyScreen: React.FC<{
     ...Object.fromEntries(keys.map(k => [k, true]))
   }));
   const amtNum = Number(amountRequested) || 0;
-  const q = useMemo(() => quote(amtNum), [amtNum]);
+  const q = useMemo(() => quote(amtNum, termMonths), [amtNum, termMonths]);
   // Clamp the requested amount to [MIN, MAX] — applied ONLY on blur and when the
   // user advances/submits, so typing (incl. temporarily-below-MIN or empty) is free.
   const clampAmountValue = () => {
@@ -105,6 +107,7 @@ export const ApplyScreen: React.FC<{
         accountBalance: Number(accountBalance),
         amountRequested: clampedAmount,
         loanPurpose,
+        termMonths,
         annualIncome: Number(annualIncome),
         monthlyDebt: Number(monthlyDebt),
         employmentStatus
@@ -163,11 +166,24 @@ export const ApplyScreen: React.FC<{
               </select>
             </Field>
 
+            <Field label="Repayment term" htmlFor="termMonths" hint="How long you'll take to repay. Your estimated monthly payment updates below.">
+              <select id="termMonths" value={termMonths} onChange={e => setTermMonths(Number(e.target.value))} className={inputCls(false)}>
+                {TERM_OPTIONS.map(t => <option key={t} value={t}>{t} months</option>)}
+              </select>
+            </Field>
+
             {amountValid && amtNum > 0 && <div className="rounded-xl border border-[#e6e9ef] bg-[#f8fafc] p-4">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                   If approved at this amount
                 </div>
-                <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
+                <div className="mt-2 flex items-baseline justify-between gap-3">
+                  <span className="text-sm text-[#667085]">Estimated monthly payment</span>
+                  <span className="text-2xl font-semibold tabular-nums tracking-tight text-[#101828]">
+                    {fmtUSD(q.monthly)}
+                    <span className="ml-1 text-sm font-medium text-[#667085]">/ mo for {q.termMonths} months</span>
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
                   <div>
                     <div className="text-xs text-[#667085]">Interest tier</div>
                     <div className="font-semibold text-[#101828]">{fmtPct(q.rate)}</div>
@@ -273,7 +289,7 @@ export const ApplyScreen: React.FC<{
             </div>
 
             <div className="divide-y divide-[#e6e9ef] rounded-xl border border-[#e6e9ef]">
-              {[['Name', name.trim()], ['Email', email.trim()], ['Account balance', fmtUSD(Number(accountBalance) || 0)], ['Annual income', fmtUSD(Number(annualIncome) || 0)], ['Monthly debt', fmtUSD(Number(monthlyDebt) || 0)], ['Employment', employmentStatus], ['Amount requested', fmtUSD(amtNum)], ['Loan purpose', loanPurpose]].map(([k, v]) => <div key={k} className="flex items-center justify-between px-4 py-3 text-sm">
+              {[['Name', name.trim()], ['Email', email.trim()], ['Account balance', fmtUSD(Number(accountBalance) || 0)], ['Annual income', fmtUSD(Number(annualIncome) || 0)], ['Monthly debt', fmtUSD(Number(monthlyDebt) || 0)], ['Employment', employmentStatus], ['Amount requested', fmtUSD(amtNum)], ['Loan purpose', loanPurpose], ['Repayment term', `${termMonths} months`]].map(([k, v]) => <div key={k} className="flex items-center justify-between px-4 py-3 text-sm">
                   <span className="text-[#667085]">{k}</span>
                   <span className="font-semibold tabular-nums text-[#101828]">{v}</span>
                 </div>)}
@@ -283,7 +299,14 @@ export const ApplyScreen: React.FC<{
               <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                 Estimated terms (subject to review)
               </div>
-              <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
+              <div className="mt-2 flex items-baseline justify-between gap-3">
+                <span className="text-sm text-[#667085]">Estimated monthly payment</span>
+                <span className="text-2xl font-semibold tabular-nums tracking-tight text-[#101828]">
+                  {fmtUSD(q.monthly)}
+                  <span className="ml-1 text-sm font-medium text-[#667085]">/ mo for {q.termMonths} months</span>
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
                 <div>
                   <div className="text-xs text-[#667085]">Tier</div>
                   <div className="font-semibold text-[#101828]">{fmtPct(q.rate)}</div>
