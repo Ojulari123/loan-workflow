@@ -11,6 +11,8 @@ public class LoanApplication {
     private String createdAt;
     private String approvedAt;
     private String loanPurpose;
+    private int termMonths;
+    private double monthlyPayment; // computed on read (amortized); not persisted
 
     public LoanApplication() {}
 
@@ -121,6 +123,22 @@ public class LoanApplication {
 
     public void setLoanPurpose(String loanPurpose) {
         this.loanPurpose = loanPurpose;
+    }
+
+    public int getTermMonths() {
+        return termMonths;
+    }
+
+    public void setTermMonths(int termMonths) {
+        this.termMonths = termMonths;
+    }
+
+    public double getMonthlyPayment() {
+        return monthlyPayment;
+    }
+
+    public void setMonthlyPayment(double monthlyPayment) {
+        this.monthlyPayment = monthlyPayment;
     }
 
     @Override

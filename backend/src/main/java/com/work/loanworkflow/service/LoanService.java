@@ -10,6 +10,7 @@ import com.work.loanworkflow.dto.LoanApplicationRequest;
 import com.work.loanworkflow.dto.LoanPaymentRequest;
 import com.work.loanworkflow.enums.LoanStatus;
 import com.work.loanworkflow.exception.*;
+import com.work.loanworkflow.model.AmortizationEntry;
 import com.work.loanworkflow.model.Applicant;
 import com.work.loanworkflow.model.Loan;
 import com.work.loanworkflow.model.LoanApplication;
@@ -115,13 +116,18 @@ public class LoanService {
         if(request == null){
             throw new LoanException("Input required details");
         }
+        int termMonths = request.getTermMonths();
+        if (termMonths != 12 && termMonths != 24 && termMonths != 36 && termMonths != 48) {
+            throw new LoanException("Invalid loan term: " + termMonths + ". Allowed terms (months): 12, 24, 36, 48.");
+        }
 
-        String sql = "INSERT INTO Loan_Application (applicant_id, applicant_name, requested_amount, approved_amount, remaining_balance, fully_paid, loan_purpose) VALUES (?, ?, ?, 0, 0, FALSE, ?)";
+        String sql = "INSERT INTO Loan_Application (applicant_id, applicant_name, requested_amount, approved_amount, remaining_balance, fully_paid, loan_purpose, term_months) VALUES (?, ?, ?, 0, 0, FALSE, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, applicantId);
             stmt.setString(2, app.getName());
             stmt.setDouble(3, request.getAmountRequested());
             stmt.setString(4, request.getLoanPurpose()); // null when not supplied (backward-compatible)
+            stmt.setInt(5, termMonths);
             stmt.executeUpdate();
 
             ResultSet keys = stmt.getGeneratedKeys();
@@ -200,7 +206,9 @@ public class LoanService {
         if (newStatus.equalsIgnoreCase("REJECTED")) {
             approvedAmount = 0;
         } else if (newStatus.equalsIgnoreCase("APPROVED")) {
-            approvedAmount += calculateInterest(approvedAmount);
+            // approvedAmount stays as the approved principal P. The amount-to-repay is the
+            // amortized total (monthly payment * term) applied as the remaining balance by
+            // recordApprovedLoan(...); this replaces the old simple-interest total.
         }
 
         String sql = "UPDATE Loan_Application SET status = ?, approved_amount = ?, remaining_balance = ?, fully_paid = FALSE, approved_at = NOW() WHERE id = ?";
@@ -489,6 +497,86 @@ public class LoanService {
         }
     }
 
+    /**
+     * Annual interest rate (as a fraction, e.g. 0.05 for 5%) for a principal, derived from the
+     * existing product tier method {@link #calculateInterest(double)} so tiers live in one place.
+     */
+    public double getAnnualRate(double principal) {
+        if (principal <= 0) {
+            return 0.0;
+        }
+        return calculateInterest(principal) / principal;
+    }
+
+    /**
+     * Fully-amortized monthly payment: M = P * r / (1 - (1+r)^-n), where r = annualRate / 12.
+     * Guards r == 0 (M = P/n) and non-positive term. Rounded to cents.
+     */
+    public double computeMonthlyPayment(double principal, double annualRate, int termMonths) {
+        if (termMonths <= 0) {
+            return 0.0;
+        }
+        double r = annualRate / 12.0;
+        double m;
+        if (r == 0.0) {
+            m = principal / termMonths;
+        } else {
+            m = principal * r / (1 - Math.pow(1 + r, -termMonths));
+        }
+        return round2(m);
+    }
+
+    /**
+     * Build the amortization schedule (a read-only projection; never enforced). For k = 1..n:
+     * interest_k = round(balance * r), principal_k = round(M - interest_k), balance -= principal_k.
+     * The final row absorbs rounding so the ending balance is exactly 0.
+     */
+    public List<AmortizationEntry> computeAmortizationSchedule(double principal, double annualRate, int termMonths) {
+        List<AmortizationEntry> schedule = new ArrayList<>();
+        if (termMonths <= 0 || principal <= 0) {
+            return schedule;
+        }
+        double r = annualRate / 12.0;
+        double monthly = computeMonthlyPayment(principal, annualRate, termMonths);
+        double balance = principal;
+        for (int k = 1; k <= termMonths; k++) {
+            double interest = round2(balance * r);
+            double principalPortion;
+            double payment;
+            if (k == termMonths) {
+                // Last row absorbs residual rounding: clear the remaining balance exactly.
+                principalPortion = round2(balance);
+                payment = round2(principalPortion + interest);
+                balance = 0.0;
+            } else {
+                principalPortion = round2(monthly - interest);
+                balance = round2(balance - principalPortion);
+                payment = monthly;
+            }
+            schedule.add(new AmortizationEntry(k, payment, principalPortion, interest, balance));
+        }
+        return schedule;
+    }
+
+    /**
+     * Amortization schedule for an APPROVED application, computed on demand from its approved
+     * principal + tier rate + chosen term. Throws for non-approved applications.
+     */
+    public List<AmortizationEntry> getAmortizationSchedule(int applicationId) {
+        LoanApplication app = getLoanApplicationById(applicationId);
+        if (!"APPROVED".equalsIgnoreCase(app.getStatus())) {
+            throw new LoanException("Amortization schedule is only available for APPROVED applications. Current status: "
+                    + app.getStatus());
+        }
+        double principal = app.getApprovedAmount();
+        double annualRate = getAnnualRate(principal);
+        return computeAmortizationSchedule(principal, annualRate, app.getTermMonths());
+    }
+
+    private double round2(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
     private double getRequestedAmount(int applicationId) { //Get the requested loan amount from DB
         String sql = "SELECT requested_amount FROM Loan_Application WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -528,6 +616,12 @@ public class LoanService {
                 rs.getString("approved_at")
         );
         loan.setLoanPurpose(rs.getString("loan_purpose")); // null when SQL NULL
+        loan.setTermMonths(rs.getInt("term_months"));
+        // Amortized monthly payment computed on read (not persisted). Preview uses the
+        // requested amount while pending; once approved, the approved principal is used.
+        double principal = loan.getApprovedAmount() > 0 ? loan.getApprovedAmount() : loan.getAmountRequested();
+        double annualRate = getAnnualRate(principal);
+        loan.setMonthlyPayment(computeMonthlyPayment(principal, annualRate, loan.getTermMonths()));
         return loan;
     }
 
@@ -557,7 +651,11 @@ public class LoanService {
     }
 
     private void recordApprovedLoan(LoanApplication app) { //Store approved loan in the loan table
-        double totalLoanAmount = app.getApprovedAmount();
+        // Amortized total to repay = monthly payment * term, from the approved principal + tier rate.
+        double principal = app.getApprovedAmount();
+        double annualRate = getAnnualRate(principal);
+        double monthly = computeMonthlyPayment(principal, annualRate, app.getTermMonths());
+        double totalLoanAmount = round2(monthly * app.getTermMonths());
 
         String sql = "INSERT INTO loan (applicant_id, applicant_name, loan_application_id, loan_amount) " +
                 "VALUES (?, ?, ?, ?)";

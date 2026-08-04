@@ -37,6 +37,10 @@ public class AiUnderwritingService {
             + "high-risk ones, and REFER when a human should take a closer look. Base the risk score "
             + "(0-100, higher is safer) on debt-to-income ratio, income, existing approved debt, "
             + "account balance/reserves, employment status, and the requested amount versus capacity. "
+            + "Critically weigh monthly-payment affordability: compare the applicant's estimated monthly "
+            + "payment against their monthly income (the payment-to-income ratio), where a high monthly "
+            + "payment relative to income signals reduced affordability and should lower the risk score and "
+            + "push toward REFER or DECLINE, while a comfortably low monthly payment supports APPROVE. "
             + "For the recommended interest rate, start from the product tiers "
             + "(<=10k -> 2.5%, <=50k -> 5%, >50k -> 7.5%) and adjust modestly for risk. "
             + "The recommended amount must not exceed the amount requested. "
@@ -83,7 +87,15 @@ public class AiUnderwritingService {
         double annualDebt = monthlyDebt * 12.0;
         double dti = annualIncome > 0 ? (annualDebt / annualIncome) * 100.0 : 0.0; // guard divide-by-zero
 
-        String profile = buildProfile(application, applicant, dti);
+        // Term-based affordability: amortized monthly payment and payment-to-income ratio.
+        double principal = application.getApprovedAmount() > 0
+                ? application.getApprovedAmount() : application.getAmountRequested();
+        double annualRate = loanService.getAnnualRate(principal);
+        double monthlyPayment = loanService.computeMonthlyPayment(principal, annualRate, application.getTermMonths());
+        double monthlyIncome = annualIncome / 12.0;
+        double paymentToIncome = monthlyIncome > 0 ? (monthlyPayment / monthlyIncome) * 100.0 : 0.0;
+
+        String profile = buildProfile(application, applicant, dti, monthlyPayment, paymentToIncome);
 
         AnthropicClient client = null;
         try {
@@ -171,7 +183,8 @@ public class AiUnderwritingService {
         return lb > la ? b : a;
     }
 
-    private String buildProfile(LoanApplication application, Applicant applicant, double dti) {
+    private String buildProfile(LoanApplication application, Applicant applicant, double dti,
+                                double monthlyPayment, double paymentToIncome) {
         String employment = applicant.getEmploymentStatus() != null
                 ? applicant.getEmploymentStatus() : "Unknown";
         String purpose = application.getLoanPurpose() != null
@@ -191,6 +204,9 @@ public class AiUnderwritingService {
         sb.append("- Application ID: ").append(application.getApplicationId()).append('\n');
         sb.append("- Amount requested: ").append(fmtMoney(application.getAmountRequested())).append('\n');
         sb.append("- Purpose: ").append(purpose).append('\n');
+        sb.append("- Chosen repayment term: ").append(application.getTermMonths()).append(" months\n");
+        sb.append("- Estimated monthly payment (amortized): ").append(fmtMoney(monthlyPayment)).append('\n');
+        sb.append("- Monthly payment-to-income ratio: ").append(String.format("%.2f", paymentToIncome)).append("%\n");
         sb.append("- Current status (do not change; advisory only): ").append(application.getStatus()).append('\n');
         sb.append('\n');
         sb.append("Now produce the full structured assessment for this applicant. Fill every field with "

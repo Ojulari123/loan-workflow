@@ -4,6 +4,7 @@ public class LoanApplicationRequest {
     private String applicantName;
     private double amountRequested;
     private String loanPurpose;
+    private int termMonths;
 
     public LoanApplicationRequest() {}
 
@@ -34,5 +35,13 @@ public class LoanApplicationRequest {
 
     public void setLoanPurpose(String loanPurpose) {
         this.loanPurpose = loanPurpose;
+    }
+
+    public int getTermMonths() {
+        return termMonths;
+    }
+
+    public void setTermMonths(int termMonths) {
+        this.termMonths = termMonths;
     }
 }

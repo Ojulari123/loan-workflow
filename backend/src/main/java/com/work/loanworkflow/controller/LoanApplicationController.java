@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.work.loanworkflow.dto.LoanApplicationRequest;
 import com.work.loanworkflow.enums.LoanStatus;
 import com.work.loanworkflow.exception.*;
+import com.work.loanworkflow.model.AmortizationEntry;
 import com.work.loanworkflow.model.CreditAssessment;
 import com.work.loanworkflow.model.LoanApplication;
 import com.work.loanworkflow.service.AiUnderwritingService;
@@ -64,6 +65,18 @@ public class LoanApplicationController {
             return loanService.updateLoanStatus(applicantId, status, approvedAmount);
         } else {
             return loanService.updateLoanStatus(applicantId, status);
+        }
+    }
+
+    @GetMapping("/{applicationId}/amortization")
+    @Operation(summary = "Get amortization schedule (approved only)", description = "Returns the projected amortization schedule for an APPROVED application, computed on demand from the approved amount, its interest tier, and the chosen term. This is a read-only projection and is never enforced: early or flexible payoff remains possible. Returns 400 if the application is not APPROVED or not found.")
+    public ResponseEntity<?> getAmortizationSchedule(@PathVariable int applicationId) {
+        try {
+            List<AmortizationEntry> schedule = loanService.getAmortizationSchedule(applicationId);
+            return ResponseEntity.ok(schedule);
+        } catch (LoanException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new LoanMessage(e.getMessage()));
         }
     }
 

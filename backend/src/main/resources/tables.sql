@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS loan_application (
     status VARCHAR(20) DEFAULT 'PENDING',
     fully_paid BOOLEAN DEFAULT FALSE,
     loan_purpose VARCHAR(60) NULL,
+    term_months INT NOT NULL DEFAULT 24,
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     approved_at TIMESTAMP NULL,
     FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE
