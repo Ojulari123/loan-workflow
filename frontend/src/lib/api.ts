@@ -79,6 +79,9 @@ interface RawPayment {
   amountPaid: number;
   paidAt: string;
   remainingBalance: number;
+  // Present on the payment POST response (new applicant balance after the
+  // charge); may be absent on the list endpoints.
+  accountBalance?: number;
 }
 
 const s = (n: number | string): string => String(n);
@@ -127,6 +130,7 @@ const normalizePayment = (r: RawPayment): LoanPayment => ({
   amountPaid: r.amountPaid,
   paidAt: r.paidAt,
   remainingBalance: r.remainingBalance,
+  accountBalance: r.accountBalance,
 });
 
 // ---------------------------------------------------------------------------
@@ -215,6 +219,20 @@ export function getApplicantById(applicantId: string): Promise<Applicant> {
     `/api/applicants/${applicantId}`,
     normalizeApplicant,
   );
+}
+
+// Top up the applicant's account balance. POST /api/applicants/{id}/deposit
+// with { amount } returns the { message, data } envelope where data is the
+// updated Applicant (with the new accountBalance) — normalized like the rest.
+export function depositToAccount(
+  applicantId: string,
+  amount: number,
+): Promise<Applicant> {
+  return sendWrapped<RawApplicant>(
+    `/api/applicants/${applicantId}/deposit`,
+    'POST',
+    { amount },
+  ).then(normalizeApplicant);
 }
 
 // ---------------------------------------------------------------------------

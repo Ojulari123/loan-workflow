@@ -154,7 +154,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
     setCustAppId(applicationId);
     setCustView(app?.status === 'PAID-OFF' ? 'payoff' : 'dashboard');
   };
-  const handlePayment = async (amount: number) => {
+  const handlePayment = async (amount: number): Promise<LoanPayment | void> => {
     if (busyRef.current) return;
     const app = findApp(custAppId);
     const loan = findLoanByApp(custAppId);
@@ -163,7 +163,10 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
     setBusy(true);
     setError(null);
     try {
-      await api.makePayment(loan.id, { amount });
+      // The payment response carries the new loan remaining AND the new applicant
+      // account balance — returned to the PaymentScreen so it can show the money
+      // move live without a full reload.
+      const payment = await api.makePayment(loan.id, { amount });
       // Authoritative post-payment state comes from the backend: it recomputes
       // the remaining balance and flips status to PAID-OFF at zero.
       const [freshApp, freshLoans, freshPays] = await Promise.all([
@@ -175,7 +178,11 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
       setLoans(prev => upsert(prev, freshLoans, l => l.id));
       setPayments(prev => upsert(prev, freshPays, p => p.id));
       const paidOff = freshApp.status === 'PAID-OFF' || (freshApp.remainingBalance ?? 0) <= 0;
-      setCustView(paidOff ? 'payoff' : 'dashboard');
+      // Payoff → existing paid-off flow. Partial payment → STAY on the payment
+      // screen; its remainingBalance prop re-renders from the refreshed app and
+      // the account balance updates from the returned payment.
+      if (paidOff) setCustView('payoff');
+      return payment;
     } catch (e) {
       setError(msgOf(e));
     } finally {
@@ -248,7 +255,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
       case 'dashboard':
         return custApp && custLoan ? <DashboardScreen loan={custLoan} application={custApp} payments={payments} onPay={() => setCustView('payment')} /> : <MyLoansScreen applications={customerApps} loans={loans} onManage={handleManage} onApplyNew={() => setCustView('apply')} />;
       case 'payment':
-        return custApp && custLoan ? <PaymentScreen remainingBalance={custApp.remainingBalance ?? custLoan.loanAmount} onSubmit={handlePayment} onBack={() => setCustView('dashboard')} submitting={busy} /> : null;
+        return custApp && custLoan ? <PaymentScreen applicantId={custApp.applicantId} remainingBalance={custApp.remainingBalance ?? custLoan.loanAmount} onSubmit={handlePayment} onBack={() => setCustView('dashboard')} submitting={busy} /> : null;
       case 'payoff':
         return custApp && custLoan ? <PayoffScreen loan={custLoan} application={custApp} payments={payments} onBackToLoans={() => setCustView('myloans')} onRestart={restart} /> : null;
       default:

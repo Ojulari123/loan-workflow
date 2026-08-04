@@ -47,6 +47,9 @@ export interface LoanPayment {
   amountPaid: number;
   paidAt: string;
   remainingBalance: number;
+  // New applicant account balance after the charge. Present on the POST
+  // /api/payments/loan/{loanId} response; absent on list endpoints (optional).
+  accountBalance?: number;
 }
 
 // ---------------------------------------------------------------------------
