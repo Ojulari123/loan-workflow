@@ -1,0 +1,9 @@
+# Keep the build context small and reproducible: never ship host build
+# artifacts, caches, VCS, or secrets into the image.
+.git
+.gradle
+build
+bin
+node_modules
+.env
+.DS_Store
