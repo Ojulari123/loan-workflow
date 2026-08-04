@@ -104,17 +104,11 @@ public class AiUnderwritingService {
                     .build();
 
             CreditAssessment first = callModel(client, params);
-            System.err.println("[AIDIAG] app=" + applicationId + " first degenerate=" + isDegenerate(first)
-                    + " ratlen=" + (first != null && first.rationale() != null ? first.rationale().trim().length() : -1)
-                    + " factors=" + (first != null && first.keyFactors() != null ? first.keyFactors().size() : -1));
             if (!isDegenerate(first)) {
                 return first;
             }
             // Degenerate first result: retry exactly once with the same params (bounds cost).
             CreditAssessment second = callModel(client, params);
-            System.err.println("[AIDIAG] app=" + applicationId + " RETRY fired; second degenerate=" + isDegenerate(second)
-                    + " ratlen=" + (second != null && second.rationale() != null ? second.rationale().trim().length() : -1)
-                    + " factors=" + (second != null && second.keyFactors() != null ? second.keyFactors().size() : -1));
             if (!isDegenerate(second)) {
                 return second;
             }
