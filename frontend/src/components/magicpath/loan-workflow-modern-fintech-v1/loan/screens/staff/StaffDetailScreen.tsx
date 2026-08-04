@@ -65,7 +65,9 @@ export const StaffDetailScreen: React.FC<{
     setBaseRaw(String(n));
   };
   const base = Math.max(0, Math.min(requested, Number(baseRaw) || 0));
-  const q = useMemo(() => quote(base), [base]);
+  // Use the application's own term so staff see the SAME amortized figures the
+  // borrower saw at apply time (monthly payment, interest and total to repay).
+  const q = useMemo(() => quote(base, application.termMonths), [base, application.termMonths]);
   const valid = base > 0;
 
   // ---- AI Underwriter (advisory, on-demand — each call costs money) --------
@@ -296,7 +298,8 @@ export const StaffDetailScreen: React.FC<{
       {isPending ? <Card className="p-6">
           <div className="text-sm font-semibold text-[#101828]">Decision</div>
           <p className="mt-1 text-sm text-[#667085]">
-            Approve the full request or a partial base. Interest is added on top of the approved base.
+            Approve the full request or a partial base. The tier rate applies to the approved base; the borrower
+            repays it in fixed monthly payments over their term.
           </p>
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">

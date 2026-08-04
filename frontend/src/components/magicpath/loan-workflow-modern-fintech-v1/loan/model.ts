@@ -27,6 +27,7 @@ export interface LoanApplication {
   fullyPaid: boolean;
   status: ApplicationStatus;
   loanPurpose: string | null;
+  termMonths: number; // repayment term in months (backend serializes it on every application)
   createdAt: string;
   approvedAt: string | null;
 }
@@ -109,8 +110,9 @@ export const fmtWhen = (iso: string): string => {
 };
 
 // ---------------------------------------------------------------------------
-// Interest tiers — applied to the approved amount, ADDED ON TOP. One-time,
-// never recompounded. Repayment is simple balance reduction (no amortization).
+// Interest tiers — the fixed annual rate for a loan, selected by principal size.
+// Repayment is standard amortization: a fixed monthly payment over the chosen
+// term (see monthlyPayment / quote). Paying off early lowers the interest paid.
 //   amount ≤ 10,000            → 2.5%
 //   10,000 < amount ≤ 50,000   → 5%
 //   amount > 50,000            → 7.5%
@@ -165,27 +167,31 @@ export function monthlyPayment(principal: number, annualRate: number, termMonths
 export interface Quote {
   principal: number; // the base / approved base
   rate: number;
-  interest: number; // principal * rate
-  total: number; // principal + interest  (== approvedAmount == total cost of borrowing)
+  interest: number; // amortized interest over the term  (== total − principal)
+  total: number; // total to repay  (== monthly × termMonths)
   tier: Tier;
   termMonths: number; // repayment term used for the monthly figure
   monthly: number; // estimated amortized monthly payment for principal @ this term
 }
 
-/** The core calculation used by the calculator, the apply preview, the staff
- *  decision screen and approval. `termMonths` drives the monthly-payment
- *  estimate (defaults to DEFAULT_TERM_MONTHS for callers that don't pick one). */
+/** The core calculation used by the calculator, the apply preview and the staff
+ *  decision screen. `termMonths` drives the amortized monthly payment AND the
+ *  totals derived from it (defaults to DEFAULT_TERM_MONTHS for callers that
+ *  don't pick one). Everything reconciles: monthly × termMonths === total, and
+ *  interest === total − principal, so no figure in the UI can contradict another. */
 export function quote(principal: number, termMonths: number = DEFAULT_TERM_MONTHS): Quote {
   const tier = tierFor(principal);
-  const interest = round2(principal * tier.rate);
+  const monthly = monthlyPayment(principal, tier.rate, termMonths);
+  const total = round2(monthly * termMonths);
+  const interest = round2(total - principal);
   return {
     principal,
     rate: tier.rate,
     interest,
-    total: round2(principal + interest),
+    total,
     tier,
     termMonths,
-    monthly: monthlyPayment(principal, tier.rate, termMonths)
+    monthly
   };
 }
 

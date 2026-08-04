@@ -59,6 +59,7 @@ interface RawApplication {
   fullyPaid: boolean;
   status: string;
   loanPurpose: string | null;
+  termMonths: number;
   createdAt: string;
   approvedAt: string | null;
 }
@@ -104,6 +105,7 @@ const normalizeApplication = (r: RawApplication): LoanApplication => ({
   fullyPaid: r.fullyPaid,
   status: r.status as ApplicationStatus,
   loanPurpose: r.loanPurpose,
+  termMonths: r.termMonths,
   createdAt: r.createdAt,
   approvedAt: r.approvedAt,
 });

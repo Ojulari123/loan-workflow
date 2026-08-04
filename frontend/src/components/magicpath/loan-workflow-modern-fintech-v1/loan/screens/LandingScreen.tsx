@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { quote, fmtUSD, fmtUSD0, fmtPct, TIERS } from '../model';
+import { quote, fmtUSD, fmtUSD0, fmtPct, TIERS, TERM_OPTIONS, DEFAULT_TERM_MONTHS } from '../model';
 import { Card, Button, Money } from '../primitives';
 import { IconApply, IconReview, IconOffer, IconRepay, IconArrowRight, IconShield, IconInfo } from '../icons';
 const STEPS = [{
@@ -13,11 +13,11 @@ const STEPS = [{
 }, {
   icon: IconOffer,
   title: 'Offer & funds',
-  body: 'Accept your offer — interest is fixed once, up front.'
+  body: 'Accept your offer — your rate and monthly payment are locked for your term.'
 }, {
   icon: IconRepay,
   title: 'Repay',
-  body: 'Pay down the balance any time. No compounding, ever.'
+  body: 'Fixed monthly payments over your term. Pay off early anytime to save on interest.'
 }];
 const MIN = 500;
 const MAX = 100000;
@@ -43,7 +43,8 @@ export const LandingScreen: React.FC<{
   // slider position. Empty or invalid input falls back to a neutral 0 state.
   const parsed = amountText.trim() === '' ? NaN : Number(amountText);
   const previewAmount = Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-  const q = useMemo(() => quote(previewAmount), [previewAmount]);
+  const [termMonths, setTermMonths] = useState<number>(DEFAULT_TERM_MONTHS);
+  const q = useMemo(() => quote(previewAmount, termMonths), [previewAmount, termMonths]);
   const pct = Math.max(0, Math.min(100, (previewAmount - MIN) / (MAX - MIN) * 100));
   const clampToRange = (n: number) => Math.max(MIN, Math.min(MAX, Math.round(n)));
   const commitAmount = () => {
@@ -65,14 +66,14 @@ export const LandingScreen: React.FC<{
       <div className="flex flex-col items-start gap-4">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e6e9ef] bg-white px-3 py-1 text-xs font-medium text-[#475467]">
           <IconShield size={13} className="text-[#2563eb]" />
-          Transparent lending — see your total cost before you apply
+          Transparent lending — see your monthly payment before you apply
         </span>
         <h1 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-[#101828] sm:text-4xl">
           Borrow with numbers you can trust.
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-[#475467] sm:text-base">
-          Simple, fixed-interest loans from $500 to $100,000. Interest is applied once at approval and never
-          recompounds — the total cost of borrowing is shown up front, always.
+          Fixed-rate loans from $500 to $100,000. Pick a term, see your exact monthly payment before you apply,
+          and pay off early anytime to save on interest.
         </p>
       </div>
 
@@ -141,6 +142,16 @@ export const LandingScreen: React.FC<{
               </div>
             </div>
 
+            {/* Repayment term — drives the monthly payment and totals below */}
+            <div className="mt-5">
+              <label htmlFor="calcTerm" className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
+                Repayment term
+              </label>
+              <select id="calcTerm" value={termMonths} onChange={e => setTermMonths(Number(e.target.value))} className="mt-1.5 w-full rounded-xl border border-[#d0d5dd] bg-white px-3.5 py-2.5 text-sm text-[#101828] transition-shadow duration-150 focus:border-[#2563eb] focus:outline-none focus:ring-4 focus:ring-[#eff6ff]">
+                {TERM_OPTIONS.map(t => <option key={t} value={t}>{t} months</option>)}
+              </select>
+            </div>
+
             {/* Tier legend */}
             <div className="mt-5 grid grid-cols-3 gap-2">
               {TIERS.map(t => {
@@ -156,7 +167,7 @@ export const LandingScreen: React.FC<{
             </div>
           </div>
 
-          {/* Output — total cost dominates */}
+          {/* Output — the monthly payment dominates */}
           <div className="flex flex-col justify-between gap-5 bg-[#f8fafc] p-6">
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between text-sm">
@@ -165,6 +176,16 @@ export const LandingScreen: React.FC<{
                   {q.tier.label} · {fmtPct(q.rate)}
                 </span>
               </div>
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
+                  Estimated monthly payment
+                </div>
+                <div className="mt-1 text-4xl font-semibold tabular-nums tracking-tight text-[#101828]">
+                  {fmtUSD(q.monthly)}
+                  <span className="ml-1.5 text-sm font-medium text-[#667085]">/ mo for {q.termMonths} months</span>
+                </div>
+              </div>
+              <div className="my-1 h-px w-full bg-[#e6e9ef]" />
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[#475467]">Principal</span>
                 <Money value={q.principal} className="font-semibold text-[#101828]" />
@@ -173,17 +194,12 @@ export const LandingScreen: React.FC<{
                 <span className="text-[#475467]">Interest ({fmtPct(q.rate)})</span>
                 <Money value={q.interest} className="font-semibold text-[#101828]" />
               </div>
-              <div className="my-1 h-px w-full bg-[#e6e9ef]" />
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
-                  Total cost of borrowing
-                </div>
-                <div className="mt-1 text-4xl font-semibold tabular-nums tracking-tight text-[#101828]">
-                  {fmtUSD(q.total)}
-                </div>
-                <div className="mt-1 text-xs text-[#667085]">
-                  Principal {fmtUSD(q.principal)} + interest {fmtUSD(q.interest)}
-                </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[#475467]">Total to repay</span>
+                <Money value={q.total} className="font-semibold text-[#101828]" />
+              </div>
+              <div className="text-xs text-[#667085]">
+                {fmtUSD(q.monthly)} × {q.termMonths} = {fmtUSD(q.total)} · principal {fmtUSD(q.principal)} + interest {fmtUSD(q.interest)}
               </div>
             </div>
 
@@ -194,8 +210,8 @@ export const LandingScreen: React.FC<{
               </Button>
               <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-[#667085]">
                 <IconInfo size={13} className="mt-0.5 shrink-0 text-[#98a2b3]" />
-                This is an estimate. Your officer approves the final amount; interest is then fixed once and added
-                on top.
+                This is an estimate. Your officer approves the final amount; your rate is locked and your payment
+                is fixed for the term. Pay early to save on interest.
               </p>
             </div>
           </div>
