@@ -108,13 +108,13 @@ export const LandingScreen: React.FC<{
       <Card className="overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
           {/* Controls */}
-          <div className="border-b border-[#e6e9ef] p-6 lg:border-b-0 lg:border-r">
+          <div className="border-b border-[#e6e9ef] p-4 sm:p-6 lg:border-b-0 lg:border-r">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[#101828]">Estimate your loan</h3>
               <span className="text-xs text-[#667085]">Drag or type an amount</span>
             </div>
 
-            <div className="mt-5 flex items-end justify-between gap-3">
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                   Loan amount
@@ -168,7 +168,7 @@ export const LandingScreen: React.FC<{
           </div>
 
           {/* Output — the monthly payment dominates */}
-          <div className="flex flex-col justify-between gap-5 bg-[#f8fafc] p-6">
+          <div className="flex flex-col justify-between gap-5 bg-[#f8fafc] p-4 sm:p-6">
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[#475467]">Interest tier</span>

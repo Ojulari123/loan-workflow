@@ -78,7 +78,7 @@ export const MyLoansScreen: React.FC<{
                   </div>}
 
                 {(app.status === 'APPROVED' || app.status === 'PAID-OFF') && bd && <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-[#667085]">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-xs text-[#667085]">
                       <span>
                         {app.status === 'PAID-OFF' ? 'Fully repaid' : 'Remaining'}{' '}
                         <span className="font-semibold text-[#344054]">{fmtUSD(remaining)}</span> of {fmtUSD(total)}
@@ -95,7 +95,7 @@ export const MyLoansScreen: React.FC<{
               }} />
                   
                     </div>
-                    <div className="mt-3 flex items-center justify-between">
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-1.5 text-xs text-[#667085]">
                         {app.status === 'PAID-OFF' ? <>
                             <IconCheckCircle size={14} className="text-[#16a34a]" /> Loan closed

@@ -81,7 +81,7 @@ export const DashboardScreen: React.FC<{
 
       {/* Payoff ring + breakdown */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
-        <Card className="flex flex-col items-center justify-center gap-4 p-6">
+        <Card className="flex flex-col items-center justify-center gap-4 p-4 sm:p-6">
           <div className="self-start text-sm font-semibold text-[#101828]">Payoff progress</div>
           <ProgressRing percent={pctRepaid} size={184}>
             <span className="text-3xl font-semibold tabular-nums text-[#101828]">
@@ -102,7 +102,7 @@ export const DashboardScreen: React.FC<{
           </div>
         </Card>
 
-        <Card className="flex flex-col p-6">
+        <Card className="flex flex-col p-4 sm:p-6">
           <div className="text-sm font-semibold text-[#101828]">Balance breakdown</div>
 
           {/* Principal vs interest bar */}
@@ -115,7 +115,7 @@ export const DashboardScreen: React.FC<{
               width: `${interest / loanAmount * 100}%`
             }} title="Interest" />
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-[#e6e9ef] p-3">
                 <div className="flex items-center gap-1.5 text-xs text-[#667085]">
                   <span className="h-2 w-2 rounded-full bg-[#2563eb]" /> Principal
@@ -162,7 +162,7 @@ export const DashboardScreen: React.FC<{
       </div>
 
       {/* Amortization schedule — collapsible planned repayment breakdown */}
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <button type="button" onClick={toggleSchedule} className="flex w-full items-center justify-between gap-3 text-left" aria-expanded={schedOpen}>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-[#101828]">Amortization schedule</span>
@@ -176,8 +176,8 @@ export const DashboardScreen: React.FC<{
             {schedError && <p className="rounded-lg bg-[#fffbeb] px-3 py-2 text-sm text-[#b45309]">{schedError}</p>}
             {sched && sched.length === 0 && !schedLoading && !schedError && <p className="text-sm text-[#98a2b3]">No schedule available for this loan.</p>}
             {sched && sched.length > 0 && <div className="overflow-hidden rounded-xl border border-[#e6e9ef]">
-                <div className="max-h-80 overflow-y-auto">
-                  <table className="w-full border-collapse text-sm">
+                <div className="max-h-80 overflow-auto">
+                  <table className="w-full min-w-[520px] border-collapse text-sm">
                     <thead className="sticky top-0 bg-[#f8fafc]">
                       <tr className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                         <th className="px-3 py-2 text-left font-semibold">#</th>

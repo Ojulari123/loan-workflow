@@ -60,7 +60,7 @@ export const SubmittedScreen: React.FC<{
             <Stepper steps={TRACK} current={stage} />
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-[#e6e9ef] p-4">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
                 Amount requested

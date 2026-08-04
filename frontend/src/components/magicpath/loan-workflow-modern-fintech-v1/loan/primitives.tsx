@@ -65,15 +65,15 @@ export const StatTile: React.FC<{
   sub,
   emphasis = false,
   accent
-}) => <div className={`rounded-xl border p-4 sm:p-5 ${emphasis ? 'border-transparent text-white' : 'border-[#e6e9ef] bg-white'}`} style={emphasis ? {
+}) => <div className={`min-w-0 rounded-xl border p-4 sm:p-5 ${emphasis ? 'border-transparent text-white' : 'border-[#e6e9ef] bg-white'}`} style={emphasis ? {
   background: accent ?? 'linear-gradient(135deg,#2563eb,#1d4ed8)'
 } : undefined}>
-  
+
     <div className={`text-[11px] font-semibold uppercase tracking-wider ${emphasis ? 'text-white/70' : 'text-[#667085]'}`}>
-    
+
       {label}
     </div>
-    <div className={`mt-1.5 font-semibold tabular-nums tracking-tight ${emphasis ? 'text-3xl sm:text-4xl' : 'text-2xl text-[#101828]'}`}>
+    <div className={`mt-1.5 min-w-0 break-words font-semibold tabular-nums tracking-tight ${emphasis ? 'text-2xl sm:text-3xl lg:text-4xl' : 'text-2xl text-[#101828]'}`}>
     
       {children}
     </div>

@@ -183,7 +183,7 @@ export const ApplyScreen: React.FC<{
                     <span className="ml-1 text-sm font-medium text-[#667085]">/ mo for {q.termMonths} months</span>
                   </span>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
                   <div>
                     <div className="text-xs text-[#667085]">Interest tier</div>
                     <div className="font-semibold text-[#101828]">{fmtPct(q.rate)}</div>
@@ -306,7 +306,7 @@ export const ApplyScreen: React.FC<{
                   <span className="ml-1 text-sm font-medium text-[#667085]">/ mo for {q.termMonths} months</span>
                 </span>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+              <div className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
                 <div>
                   <div className="text-xs text-[#667085]">Tier</div>
                   <div className="font-semibold text-[#101828]">{fmtPct(q.rate)}</div>

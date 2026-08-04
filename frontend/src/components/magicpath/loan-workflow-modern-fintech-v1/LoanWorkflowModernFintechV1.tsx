@@ -315,7 +315,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
               <Segmented ariaLabel="Switch role" value={role} onChange={v => setRole(v as Role)} options={[{
               value: 'customer',
               label: 'Customer',
@@ -336,7 +336,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
           </div>
 
           {/* Sub-nav */}
-          <nav className="flex items-center gap-1 border-t border-[#e6e9ef] pt-3">
+          <nav className="flex flex-wrap items-center gap-1 border-t border-[#e6e9ef] pt-3">
             {role === 'customer' ? <>
                 <NavButton active={custView === 'landing' || custView === 'apply'} onClick={() => setCustView('landing')}>
                   <IconHome size={15} />

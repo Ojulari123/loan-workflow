@@ -27,7 +27,7 @@ export const PayoffScreen: React.FC<{
   return <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <Card className="overflow-hidden">
         {/* Celebration header */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f766e] via-[#15803d] to-[#166534] p-8 text-center text-white">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f766e] via-[#15803d] to-[#166534] p-6 text-center text-white sm:p-8">
           <div className="pointer-events-none absolute inset-0 opacity-20">
             {Array.from({
             length: 18
@@ -53,7 +53,7 @@ export const PayoffScreen: React.FC<{
         </div>
 
         {/* Summary */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-[#e6e9ef] p-4">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">Total principal</div>
