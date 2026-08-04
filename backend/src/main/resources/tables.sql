@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS loan (
     loan_amount DECIMAL(12,2) NOT NULL,
     status ENUM('ACTIVE', 'PAID-OFF') DEFAULT 'ACTIVE',
     issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (loan_application_id) REFERENCES Loan_Application(id) ON DELETE CASCADE,
+    FOREIGN KEY (loan_application_id) REFERENCES loan_application(id) ON DELETE CASCADE,
     FOREIGN KEY (applicant_id) REFERENCES applicants(id) ON DELETE CASCADE
 );
 

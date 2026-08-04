@@ -122,7 +122,7 @@ public class LoanService {
             throw new LoanException("Invalid loan term: " + termMonths + ". Allowed terms (months): 12, 24, 36, 48.");
         }
 
-        String sql = "INSERT INTO Loan_Application (applicant_id, applicant_name, requested_amount, approved_amount, remaining_balance, fully_paid, loan_purpose, term_months) VALUES (?, ?, ?, 0, 0, FALSE, ?, ?)";
+        String sql = "INSERT INTO loan_application (applicant_id, applicant_name, requested_amount, approved_amount, remaining_balance, fully_paid, loan_purpose, term_months) VALUES (?, ?, ?, 0, 0, FALSE, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, applicantId);
             stmt.setString(2, app.getName());
@@ -144,7 +144,7 @@ public class LoanService {
     }
 
     public LoanApplication getLoanApplicationById(int id) { //Retrieve loan application by ID
-        String sql = "SELECT * FROM Loan_Application WHERE id = ?";
+        String sql = "SELECT * FROM loan_application WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -159,7 +159,7 @@ public class LoanService {
 
     public List<LoanApplication> getAllLoanApplications() { //Retrieve all loan applications
         List<LoanApplication> list = new ArrayList<>();
-        String sql = "SELECT * FROM Loan_Application";
+        String sql = "SELECT * FROM loan_application";
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
@@ -168,15 +168,12 @@ public class LoanService {
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
         }
-        if (list.isEmpty()) {
-            throw new LoanException("No applications found");
-        }
         return list;
     }
 
     public List<LoanApplication> getApplicationsByApplicant(int applicantId) { //Retrieve all loan applications for a specific applicant
         List<LoanApplication> list = new ArrayList<>();
-        String sql = "SELECT * FROM Loan_Application WHERE applicant_id = ?";
+        String sql = "SELECT * FROM loan_application WHERE applicant_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, applicantId);
             ResultSet rs = stmt.executeQuery();
@@ -185,9 +182,6 @@ public class LoanService {
             }
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
-        }
-        if (list.isEmpty()) {
-            throw new LoanException("No applications found for applicant ID: " + applicantId);
         }
         return list;
     }
@@ -212,7 +206,7 @@ public class LoanService {
             // recordApprovedLoan(...); this replaces the old simple-interest total.
         }
 
-        String sql = "UPDATE Loan_Application SET status = ?, approved_amount = ?, remaining_balance = ?, fully_paid = FALSE, approved_at = NOW() WHERE id = ?";
+        String sql = "UPDATE loan_application SET status = ?, approved_amount = ?, remaining_balance = ?, fully_paid = FALSE, approved_at = NOW() WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newStatus);
             stmt.setDouble(2, approvedAmount);
@@ -279,9 +273,6 @@ public class LoanService {
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
         }
-        if (list.isEmpty()) {
-            throw new LoanException("No loans found for applicant ID: " + applicantId);
-        }
         return list;
     }
 
@@ -325,9 +316,6 @@ public class LoanService {
             }
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
-        }
-        if (list.isEmpty()) {
-            throw new LoanException("No loans found");
         }
         return list;
     }
@@ -426,7 +414,7 @@ public class LoanService {
 
     public List<LoanPayment> getPaymentsByLoan(int loanId) { //Get payments by loan ID
         List<LoanPayment> list = new ArrayList<>();
-        String sql = "SELECT * FROM Loan_Payment WHERE loan_id = ? ORDER BY paid_at ASC";
+        String sql = "SELECT * FROM loan_payment WHERE loan_id = ? ORDER BY paid_at ASC";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, loanId);
             ResultSet rs = stmt.executeQuery();
@@ -442,9 +430,6 @@ public class LoanService {
             }
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
-        }
-        if (list.isEmpty()) {
-            throw new LoanException("No payments found for loan ID: " + loanId);
         }
         return list;
     }
@@ -467,9 +452,6 @@ public class LoanService {
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
         }
-        if (list.isEmpty()) {
-            throw new LoanException("No payments found");
-        }
         return list;
     }
 
@@ -491,9 +473,6 @@ public class LoanService {
             }
         } catch (SQLException e) {
             throw new LoanException("Database error: " + e.getMessage());
-        }
-        if (list.isEmpty()) {
-            throw new LoanException("No payments found for Applicant ID: " + applicantId);
         }
         return list;
     }
@@ -591,7 +570,7 @@ public class LoanService {
     }
 
     private double getRequestedAmount(int applicationId) { //Get the requested loan amount from DB
-        String sql = "SELECT requested_amount FROM Loan_Application WHERE id = ?";
+        String sql = "SELECT requested_amount FROM loan_application WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, applicationId);
             ResultSet rs = stmt.executeQuery();
@@ -653,7 +632,7 @@ public class LoanService {
     }
 
     private double calculateTotalApprovedLoans(int applicantId) { //Calculate total approved loan amount for an applicant
-        String sql = "SELECT SUM(approved_amount) AS total FROM Loan_Application WHERE applicant_id = ? AND status = 'APPROVED'";
+        String sql = "SELECT SUM(approved_amount) AS total FROM loan_application WHERE applicant_id = ? AND status = 'APPROVED'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, applicantId);
             ResultSet rs = stmt.executeQuery();
@@ -703,7 +682,7 @@ public class LoanService {
     }
 
     private void updateRemainingBalance(int applicationId, double amount) { //Update remaining balance for a loan application
-        String sql = "UPDATE Loan_Application SET remaining_balance = ? WHERE id = ?";
+        String sql = "UPDATE loan_application SET remaining_balance = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setDouble(1, amount);
             stmt.setInt(2, applicationId);
@@ -715,7 +694,7 @@ public class LoanService {
 
     private void markLoanAsPaidOff(int loanId, int applicationId) throws SQLException { //Mark loan as completely paid off
         String sql1 = "UPDATE loan SET status = 'PAID-OFF' WHERE id = ?";
-        String sql2 = "UPDATE Loan_Application SET fully_paid = TRUE, status = 'PAID-OFF' WHERE id = ?";
+        String sql2 = "UPDATE loan_application SET fully_paid = TRUE, status = 'PAID-OFF' WHERE id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql1)) {
             stmt.setInt(1, loanId);
