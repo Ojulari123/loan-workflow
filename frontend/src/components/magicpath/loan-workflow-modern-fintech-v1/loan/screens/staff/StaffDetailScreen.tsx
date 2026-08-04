@@ -69,6 +69,11 @@ export const StaffDetailScreen: React.FC<{
   // borrower saw at apply time (monthly payment, interest and total to repay).
   const q = useMemo(() => quote(base, application.termMonths), [base, application.termMonths]);
   const valid = base > 0;
+  // Payment-to-income: monthly payment as a share of gross monthly income. Uses
+  // the authoritative annual income loaded above; guard divide-by-zero (unknown
+  // or zero income → "—").
+  const monthlyIncome = applicantDetail?.annualIncome ? applicantDetail.annualIncome / 12 : 0;
+  const ptiText = (monthly: number): string => monthlyIncome > 0 ? fmtPct(monthly / monthlyIncome) : '—';
 
   // ---- AI Underwriter (advisory, on-demand — each call costs money) --------
   // Kept in local state so it never touches the global busy/error that gates
@@ -143,9 +148,15 @@ export const StaffDetailScreen: React.FC<{
             </div>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between rounded-xl border border-[#e6e9ef] bg-[#f8fafc] px-4 py-3">
-          <span className="text-sm text-[#667085]">Amount requested</span>
-          <Money value={requested} className="text-lg font-semibold text-[#101828]" />
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex items-center justify-between rounded-xl border border-[#e6e9ef] bg-[#f8fafc] px-4 py-3">
+            <span className="text-sm text-[#667085]">Amount requested</span>
+            <Money value={requested} className="text-lg font-semibold text-[#101828]" />
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-[#e6e9ef] bg-[#f8fafc] px-4 py-3">
+            <span className="text-sm text-[#667085]">Repayment term</span>
+            <span className="text-lg font-semibold tabular-nums text-[#101828]">{application.termMonths} months</span>
+          </div>
         </div>
 
         {/* Financial profile — the inputs the AI underwrites on */}
@@ -328,6 +339,14 @@ export const StaffDetailScreen: React.FC<{
                   <div className="text-xs text-[#667085]">Total to repay</div>
                   <Money value={q.total} className="font-semibold text-[#101828]" />
                 </div>
+                <div>
+                  <div className="text-xs text-[#667085]">Monthly payment</div>
+                  <div className="font-semibold tabular-nums text-[#101828]">{fmtUSD(q.monthly)} / mo</div>
+                </div>
+                <div>
+                  <div className="text-xs text-[#667085]">Payment-to-income</div>
+                  <div className="font-semibold tabular-nums text-[#101828]">{ptiText(q.monthly)}</div>
+                </div>
               </div>
               <div className="mt-2 text-[11px] text-[#98a2b3]">
                 Approves a principal of {fmtUSD(base)}; the borrower repays {fmtUSD(q.total)} (principal + interest {fmtUSD(q.interest)}) in fixed monthly payments over {application.termMonths} months.
@@ -364,6 +383,14 @@ export const StaffDetailScreen: React.FC<{
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
                     <div className="text-[11px] uppercase tracking-wider text-[#667085]">Total to repay</div>
                     <Money value={bd.total} className="mt-1 block text-base font-semibold text-[#101828]" />
+                  </div>
+                  <div className="rounded-xl border border-[#e6e9ef] p-4">
+                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Monthly payment</div>
+                    <div className="mt-1 block text-base font-semibold tabular-nums text-[#101828]">{fmtUSD(bd.monthly)} / mo</div>
+                  </div>
+                  <div className="rounded-xl border border-[#e6e9ef] p-4">
+                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Payment-to-income</div>
+                    <div className="mt-1 block text-base font-semibold tabular-nums text-[#101828]">{ptiText(bd.monthly)}</div>
                   </div>
                 </div>;
       })()}

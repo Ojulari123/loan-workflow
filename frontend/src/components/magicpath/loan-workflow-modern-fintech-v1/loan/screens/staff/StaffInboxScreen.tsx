@@ -71,7 +71,10 @@ export const StaffInboxScreen: React.FC<{
                     <div className="truncate text-sm font-semibold text-[#101828]">{app.applicantName}</div>
                     <div className="truncate text-xs text-[#98a2b3]">{app.applicationId}</div>
                   </div>
-                  <Money value={app.amountRequested} className="text-sm font-semibold text-[#101828]" />
+                  <div className="min-w-0">
+                    <Money value={app.amountRequested} className="block text-sm font-semibold text-[#101828]" />
+                    <div className="text-xs tabular-nums text-[#98a2b3]">{app.termMonths} mo term</div>
+                  </div>
                   <div className="justify-self-start">
                     <StatusBadge status={app.status} size="sm" />
                   </div>
