@@ -8,6 +8,7 @@ import com.work.loanworkflow.config.DBConnection;
 import com.work.loanworkflow.dto.ApplicantRequest;
 import com.work.loanworkflow.dto.LoanApplicationRequest;
 import com.work.loanworkflow.dto.LoanPaymentRequest;
+import com.work.loanworkflow.dto.LoanPaymentResult;
 import com.work.loanworkflow.enums.LoanStatus;
 import com.work.loanworkflow.exception.*;
 import com.work.loanworkflow.model.AmortizationEntry;
@@ -361,13 +362,16 @@ public class LoanService {
             Applicant applicant = getApplicantById(applicantId);
             double accountBalance = applicant.getAccountBalance();
 
-            if (paymentAmount > accountBalance) {
-                throw new LoanException("Payment failed: Amount (" + paymentAmount +
+            // Never charge more than what is still owed on the loan. Any excess of the
+            // requested amount over the remaining balance is NOT taken from the account.
+            double charge = Math.min(paymentAmount, remaining);
+
+            if (charge > accountBalance) {
+                throw new LoanException("Insufficient account balance: charge (" + charge +
                         ") exceeds account balance (" + accountBalance + ")");
             }
 
-            double actualPayment = Math.min(paymentAmount, remaining);
-            double newBalance = remaining - paymentAmount;
+            double newBalance = remaining - charge;
             if (newBalance < 0) newBalance = 0;
 
             String sql = "INSERT INTO loan_payment (loan_id, applicant_id, amount_paid, remaining_balance) VALUES (?, ?, ?, ?)";
@@ -376,7 +380,7 @@ public class LoanService {
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setInt(1, loanId);
                 stmt.setInt(2, applicantId);
-                stmt.setDouble(3, paymentAmount);
+                stmt.setDouble(3, charge);
                 stmt.setDouble(4, newBalance);
                 stmt.executeUpdate();
 
@@ -388,7 +392,7 @@ public class LoanService {
 
             updateRemainingBalance(applicationId, newBalance);
 
-            double updatedAccountBalance = accountBalance - paymentAmount;
+            double updatedAccountBalance = accountBalance - charge;
             updateApplicantAccountBalance(applicantId, updatedAccountBalance);
 
             LoanPayment payment = fetchLoanPaymentById(paymentId);
@@ -397,13 +401,22 @@ public class LoanService {
             if (newBalance == 0) {
                 markLoanAsPaidOff(loanId, applicationId);
                 message = "Loan fully paid off!";
-            } else if (actualPayment < paymentAmount) {
-                message = "Note: Payment adjusted from " + paymentAmount + " to " + actualPayment + " (remaining loan balance). New balance: " + newBalance;
+            } else if (charge < paymentAmount) {
+                message = "Note: Payment adjusted from " + paymentAmount + " to " + charge + " (remaining loan balance). New balance: " + newBalance;
             } else {
                 message = "Payment recorded. Remaining balance: " + newBalance;
             }
 
-            return new LoanMessage(message, payment);
+            LoanPaymentResult result = new LoanPaymentResult(
+                    payment != null ? payment.getId() : paymentId,
+                    loanId,
+                    applicantId,
+                    charge,
+                    newBalance,
+                    updatedAccountBalance,
+                    payment != null ? payment.getPaidAt() : null);
+
+            return new LoanMessage(message, result);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -600,6 +613,20 @@ public class LoanService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public LoanMessage depositToAccount(int applicantId, double amount) { //Credit money into an applicant's account balance
+        if (amount <= 0) {
+            throw new LoanException("Deposit amount must be greater than zero.");
+        }
+        Applicant applicant = getApplicantById(applicantId);
+        if (applicant == null) {
+            throw new LoanException("Applicant not found.");
+        }
+        double newBalance = applicant.getAccountBalance() + amount;
+        updateApplicantAccountBalance(applicantId, newBalance);
+        Applicant updated = getApplicantById(applicantId);
+        return new LoanMessage("Deposit successful. New account balance: " + updated.getAccountBalance(), updated);
     }
 
     private LoanApplication mapResultSetToLoan(ResultSet rs) throws SQLException { //Map ResultSet to LoanApplication object
