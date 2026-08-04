@@ -40,9 +40,13 @@ export const MyLoansScreen: React.FC<{
           {sorted.map(app => {
         const loan = loans.find(l => l.loanApplicationId === app.applicationId);
         const approved = app.approvedAmount ?? 0;
-        const remaining = app.remainingBalance ?? approved;
         const bd = app.approvedAmount != null ? quote(approved, app.termMonths) : null;
-        const pct = approved > 0 ? (approved - remaining) / approved * 100 : 0;
+        // Amortized total to repay (principal + interest). This equals the loan's
+        // original/remaining balance from the backend, so it — not the principal —
+        // is the headline amount, the "of X" denominator and the progress base.
+        const total = bd ? bd.total : approved;
+        const remaining = app.remainingBalance ?? total;
+        const pct = total > 0 ? Math.min(100, Math.max(0, (total - remaining) / total * 100)) : 0;
         const clickable = app.status === 'APPROVED' || app.status === 'PAID-OFF';
         return <Card key={app.applicationId} className={`p-5 transition-shadow ${clickable ? 'cursor-pointer hover:shadow-[0_2px_4px_rgba(16,24,40,0.06),0_12px_28px_-12px_rgba(16,24,40,0.18)]' : ''}`} onClick={clickable ? () => onManage(app.applicationId) : undefined}>
               
@@ -56,7 +60,7 @@ export const MyLoansScreen: React.FC<{
                       {app.status === 'PENDING' ? 'Requested' : 'Loan amount'}
                     </div>
                     <div className="text-2xl font-semibold tabular-nums tracking-tight text-[#101828]">
-                      {fmtUSD(app.status === 'PENDING' ? app.amountRequested : approved)}
+                      {fmtUSD(app.status === 'PENDING' ? app.amountRequested : total)}
                     </div>
                   </div>
                   {clickable && <IconChevronRight size={20} className="mt-1 text-[#98a2b3]" />}
@@ -77,7 +81,7 @@ export const MyLoansScreen: React.FC<{
                     <div className="flex items-center justify-between text-xs text-[#667085]">
                       <span>
                         {app.status === 'PAID-OFF' ? 'Fully repaid' : 'Remaining'}{' '}
-                        <span className="font-semibold text-[#344054]">{fmtUSD(remaining)}</span> of {fmtUSD(approved)}
+                        <span className="font-semibold text-[#344054]">{fmtUSD(remaining)}</span> of {fmtUSD(total)}
                       </span>
                       <span className="tabular-nums font-semibold text-[#344054]">
                         {pct.toLocaleString('en-US', {
