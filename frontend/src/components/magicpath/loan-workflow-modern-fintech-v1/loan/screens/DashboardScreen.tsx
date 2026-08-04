@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loan, LoanApplication, LoanPayment, fmtUSD, fmtPct, recoverBase, round2 } from '../model';
+import { Loan, LoanApplication, LoanPayment, fmtUSD, fmtPct, quote, round2 } from '../model';
 import { Card, Button, Money, StatusBadge, StatTile, ProgressRing } from '../primitives';
 import { IconWallet, IconArrowRight, IconRepay, IconChevronRight } from '../icons';
 import * as api from '@/lib/api';
@@ -14,12 +14,13 @@ export const DashboardScreen: React.FC<{
   payments,
   onPay
 }) => {
-  const loanAmount = loan.loanAmount; // == approvedAmount == total to repay
+  const loanAmount = loan.loanAmount; // amortized total to repay (== quote(principal, term).total)
   const remaining = application.remainingBalance ?? loanAmount;
-  // Recover principal / interest from the stored approvedAmount so the breakdown
-  // is correct even when staff approved a PARTIAL base (< amountRequested).
-  const bd = recoverBase(loanAmount);
-  const principal = bd.base;
+  // Derive the principal / interest split from the approved principal and the
+  // application's term via the amortized quote, so every figure reconciles:
+  // principal + interest === quote.total === loanAmount.
+  const bd = quote(application.approvedAmount ?? 0, application.termMonths);
+  const principal = bd.principal;
   const interest = bd.interest;
   const rate = bd.rate;
   const repaid = round2(loanAmount - remaining);

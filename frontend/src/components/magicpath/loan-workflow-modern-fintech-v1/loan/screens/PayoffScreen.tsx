@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loan, LoanApplication, LoanPayment, fmtPct, recoverBase, round2 } from '../model';
+import { Loan, LoanApplication, LoanPayment, fmtPct, quote, round2 } from '../model';
 import { Card, Button, Money, StatusBadge } from '../primitives';
 import { IconTrophy, IconRepay, IconCheck, IconChevronLeft } from '../icons';
 export const PayoffScreen: React.FC<{
@@ -15,9 +15,11 @@ export const PayoffScreen: React.FC<{
   onBackToLoans,
   onRestart
 }) => {
-  const total = application.approvedAmount ?? loan.loanAmount;
-  const bd = recoverBase(total);
-  const principal = bd.base;
+  // Approved principal + the application's term feed the amortized quote, so the
+  // principal / interest split matches what the borrower repaid.
+  const principalBase = application.approvedAmount ?? loan.loanAmount;
+  const bd = quote(principalBase, application.termMonths);
+  const principal = bd.principal;
   const interest = bd.interest;
   const rate = bd.rate;
   const loanPayments = payments.filter(p => p.loanId === loan.id);

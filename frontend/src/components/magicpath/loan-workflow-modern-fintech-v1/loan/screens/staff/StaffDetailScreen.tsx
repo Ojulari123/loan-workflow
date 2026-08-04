@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { LoanApplication, Applicant, CreditAssessment, quote, recoverBase, fmtUSD, fmtPct, fmtWhen } from '../../model';
+import { LoanApplication, Applicant, CreditAssessment, quote, fmtUSD, fmtPct, fmtWhen } from '../../model';
 import { Card, Button, Money, StatusBadge, Field, inputCls, ProgressRing } from '../../primitives';
 import { IconChevronLeft, IconCheckCircle, IconX, IconUser, IconMail, IconWallet, IconSpark, IconShield } from '../../icons';
 import * as api from '@/lib/api';
@@ -325,12 +325,12 @@ export const StaffDetailScreen: React.FC<{
                   <Money value={q.interest} className="font-semibold text-[#101828]" />
                 </div>
                 <div>
-                  <div className="text-xs text-[#667085]">Approved</div>
+                  <div className="text-xs text-[#667085]">Total to repay</div>
                   <Money value={q.total} className="font-semibold text-[#101828]" />
                 </div>
               </div>
               <div className="mt-2 text-[11px] text-[#98a2b3]">
-                approvedAmount = base {fmtUSD(base)} + interest {fmtUSD(q.interest)}
+                Approves a principal of {fmtUSD(base)}; the borrower repays {fmtUSD(q.total)} (principal + interest {fmtUSD(q.interest)}) in fixed monthly payments over {application.termMonths} months.
               </div>
             </div>
           </div>
@@ -338,7 +338,7 @@ export const StaffDetailScreen: React.FC<{
           <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
             <Button variant="success" block disabled={!valid || submitting} onClick={() => valid && onApprove(application.applicationId, base)}>
               <IconCheckCircle size={17} />
-              {submitting ? 'Working…' : `Approve — ${fmtUSD(q.total)}`}
+              {submitting ? 'Working…' : `Approve — ${fmtUSD(base)} principal`}
             </Button>
             <Button variant="danger" block disabled={submitting} onClick={() => onReject(application.applicationId)}>
               <IconX size={17} />
@@ -351,19 +351,19 @@ export const StaffDetailScreen: React.FC<{
               <IconX size={16} /> This application was rejected. No loan was created.
             </div> : (() => {
         const approved = application.approvedAmount ?? 0;
-        const bd = recoverBase(approved);
+        const bd = quote(approved, application.termMonths);
         return <div className="mt-3 grid grid-cols-3 gap-3">
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
                     <div className="text-[11px] uppercase tracking-wider text-[#667085]">Approved base</div>
-                    <Money value={bd.base} className="mt-1 block text-base font-semibold text-[#101828]" />
+                    <Money value={bd.principal} className="mt-1 block text-base font-semibold text-[#101828]" />
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
                     <div className="text-[11px] uppercase tracking-wider text-[#667085]">Interest · {fmtPct(bd.rate)}</div>
                     <Money value={bd.interest} className="mt-1 block text-base font-semibold text-[#101828]" />
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
-                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Approved amount</div>
-                    <Money value={approved} className="mt-1 block text-base font-semibold text-[#101828]" />
+                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Total to repay</div>
+                    <Money value={bd.total} className="mt-1 block text-base font-semibold text-[#101828]" />
                   </div>
                 </div>;
       })()}

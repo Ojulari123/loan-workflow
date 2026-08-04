@@ -195,41 +195,6 @@ export function quote(principal: number, termMonths: number = DEFAULT_TERM_MONTH
   };
 }
 
-/**
- * Given a stored `approvedAmount` (which is base + interest), recover the base
- * principal, the interest and the rate. The backend stores only approvedAmount
- * (no separate "approvedBase" field), and staff may approve a PARTIAL base that
- * differs from amountRequested — so we invert the tier maths instead of assuming
- * principal === amountRequested. The tier→total mapping is strictly increasing
- * with clean gaps at the boundaries, so recovery is unambiguous.
- */
-export function recoverBase(approvedAmount: number): {
-  base: number;
-  interest: number;
-  rate: number;
-  tier: Tier;
-} {
-  for (const tier of TIERS) {
-    const base = round2(approvedAmount / (1 + tier.rate));
-    const maxBase = tier.rate === 0.025 ? 10000 : tier.rate === 0.05 ? 50000 : Infinity;
-    if (base <= maxBase + 1e-6) {
-      return {
-        base,
-        interest: round2(approvedAmount - base),
-        rate: tier.rate,
-        tier
-      };
-    }
-  }
-  const base = round2(approvedAmount / 1.075);
-  return {
-    base,
-    interest: round2(approvedAmount - base),
-    rate: 0.075,
-    tier: TIERS[2]
-  };
-}
-
 // ---------------------------------------------------------------------------
 // ID + timestamp helpers (client-only; the real backend assigns these)
 // ---------------------------------------------------------------------------

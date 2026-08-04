@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoanApplication, Loan, fmtUSD, fmtWhen, recoverBase } from '../model';
+import { LoanApplication, Loan, fmtUSD, fmtWhen, quote } from '../model';
 import { Card, Button, StatusBadge } from '../primitives';
 import { IconArrowRight, IconClock, IconX, IconCheckCircle, IconApply, IconChevronRight } from '../icons';
 export const MyLoansScreen: React.FC<{
@@ -41,7 +41,7 @@ export const MyLoansScreen: React.FC<{
         const loan = loans.find(l => l.loanApplicationId === app.applicationId);
         const approved = app.approvedAmount ?? 0;
         const remaining = app.remainingBalance ?? approved;
-        const bd = app.approvedAmount != null ? recoverBase(approved) : null;
+        const bd = app.approvedAmount != null ? quote(approved, app.termMonths) : null;
         const pct = approved > 0 ? (approved - remaining) / approved * 100 : 0;
         const clickable = app.status === 'APPROVED' || app.status === 'PAID-OFF';
         return <Card key={app.applicationId} className={`p-5 transition-shadow ${clickable ? 'cursor-pointer hover:shadow-[0_2px_4px_rgba(16,24,40,0.06),0_12px_28px_-12px_rgba(16,24,40,0.18)]' : ''}`} onClick={clickable ? () => onManage(app.applicationId) : undefined}>
@@ -95,7 +95,7 @@ export const MyLoansScreen: React.FC<{
                       <span className="inline-flex items-center gap-1.5 text-xs text-[#667085]">
                         {app.status === 'PAID-OFF' ? <>
                             <IconCheckCircle size={14} className="text-[#16a34a]" /> Loan closed
-                          </> : <>Interest {fmtUSD(bd.interest)} · principal {fmtUSD(bd.base)}</>}
+                          </> : <>Interest {fmtUSD(bd.interest)} · principal {fmtUSD(bd.principal)}</>}
                       </span>
                       <Button variant="secondary" onClick={() => onManage(app.applicationId)}>
                         {app.status === 'PAID-OFF' ? 'View summary' : 'Manage loan'}

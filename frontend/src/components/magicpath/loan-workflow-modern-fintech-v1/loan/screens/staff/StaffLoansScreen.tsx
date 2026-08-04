@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loan, LoanApplication, fmtUSD, fmtPct, recoverBase } from '../../model';
+import { Loan, LoanApplication, fmtUSD, fmtPct, quote } from '../../model';
 import { Card, Money, StatusBadge, StatTile } from '../../primitives';
 import { IconLayers } from '../../icons';
 export const StaffLoansScreen: React.FC<{
@@ -45,7 +45,9 @@ export const StaffLoansScreen: React.FC<{
           const app = appFor(loan.loanApplicationId);
           const remaining = app?.remainingBalance ?? loan.loanAmount;
           const pct = loan.loanAmount > 0 ? (loan.loanAmount - remaining) / loan.loanAmount * 100 : 0;
-          const bd = recoverBase(loan.loanAmount);
+          // Correlate loan → application to get the approved principal + term, then
+          // amortize: principal + interest === quote.total === loan.loanAmount.
+          const bd = quote(app?.approvedAmount ?? loan.loanAmount, app?.termMonths);
           return <li key={loan.id} className="px-5 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
@@ -64,7 +66,7 @@ export const StaffLoansScreen: React.FC<{
                   </div>
                   <div className="mt-1.5 flex items-center justify-between text-xs text-[#98a2b3]">
                     <span>
-                      Principal {fmtUSD(bd.base)} · interest {fmtUSD(bd.interest)} ({fmtPct(bd.rate)})
+                      Principal {fmtUSD(bd.principal)} · interest {fmtUSD(bd.interest)} ({fmtPct(bd.rate)})
                     </span>
                     <span className="tabular-nums">{pct.toLocaleString('en-US', {
                   maximumFractionDigits: 0
