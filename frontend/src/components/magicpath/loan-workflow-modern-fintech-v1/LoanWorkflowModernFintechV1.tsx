@@ -18,6 +18,9 @@ import { StaffLoansScreen } from './loan/screens/staff/StaffLoansScreen';
 import { StaffAnalyticsScreen } from './loan/screens/staff/StaffAnalyticsScreen';
 // Customer AI copilot (floating launcher + chat panel)
 import { CopilotChat } from './loan/CopilotChat';
+// First-run onboarding (welcome modal + per-page tips, localStorage-backed)
+import { WelcomeModal } from './loan/onboarding/WelcomeModal';
+import { useOnboarding } from './loan/onboarding/useOnboarding';
 type Role = 'customer' | 'staff';
 type CustView = 'landing' | 'apply' | 'submitted' | 'myloans' | 'dashboard' | 'payment' | 'payoff';
 type StaffTab = 'inbox' | 'loans' | 'dashboard';
@@ -36,6 +39,10 @@ function upsert<T>(list: T[], items: T[], key: (x: T) => string): T[] {
 
 export const LoanWorkflowModernFintechV1: React.FC = () => {
   const [role, setRole] = useState<Role>('customer');
+
+  // First-run onboarding: the Reset button also clears this so a fresh demo
+  // re-triggers the welcome modal + every page's first-visit tip.
+  const { resetOnboarding } = useOnboarding();
 
   // ---- Shared store — now populated from the live backend, not a seed ------
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -236,6 +243,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
     setStaffDetailId(null);
     setRole('customer');
     setError(null);
+    resetOnboarding();
     refreshStaff();
   };
 
@@ -395,5 +403,8 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
       {/* Customer-only floating AI copilot. Fed the current customer's applicant
           id from the store; null until they apply (panel shows a friendly note). */}
       {role === 'customer' && <CopilotChat applicantId={customerApplicantId} />}
+
+      {/* First-run welcome modal (shown once, remembered in localStorage). */}
+      <WelcomeModal />
     </div>;
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { fmtUSD, round2, LoanPayment } from '../model';
 import { Card, Button, Money, Field, inputCls } from '../primitives';
 import { IconChevronLeft, IconWallet, IconInfo, IconCheckCircle } from '../icons';
+import { FirstVisitTip } from '../onboarding/FirstVisitTip';
 import * as api from '@/lib/api';
 export const PaymentScreen: React.FC<{
   applicantId: string;
@@ -108,6 +109,13 @@ export const PaymentScreen: React.FC<{
           than you owe or more than your balance.
         </p>
       </div>
+
+      {/* First-visit coaching for payments */}
+      <FirstVisitTip tipKey="tip-payment" title="Paying from your balance">
+        Payments come out of your account balance. If it's low, use{' '}
+        <span className="font-semibold">Add money</span> to top up — then you can pay more, or pay the loan off in
+        full.
+      </FirstVisitTip>
 
       <Card className="p-6 sm:p-8">
         {/* Two distinct figures: what you owe vs. what you can pay with. */}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Loan, LoanApplication, LoanPayment, fmtUSD, fmtPct, quote, round2 } from '../model';
 import { Card, Button, Money, StatusBadge, StatTile, ProgressRing } from '../primitives';
 import { IconWallet, IconArrowRight, IconRepay, IconChevronRight } from '../icons';
+import { FirstVisitTip } from '../onboarding/FirstVisitTip';
 import * as api from '@/lib/api';
 export const DashboardScreen: React.FC<{
   loan: Loan;
@@ -62,6 +63,12 @@ export const DashboardScreen: React.FC<{
         </div>
         <StatusBadge status={loan.status} />
       </div>
+
+      {/* First-visit coaching for the loan dashboard */}
+      <FirstVisitTip tipKey="tip-dashboard" title="Managing your loan">
+        Track your remaining balance here, expand the amortization schedule to see each payment's split, and make
+        payments anytime. Pay off early to save on interest.
+      </FirstVisitTip>
 
       {/* Stat tiles — remaining balance dominates */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

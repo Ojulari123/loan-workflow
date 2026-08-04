@@ -2,6 +2,7 @@ import React from 'react';
 import { LoanApplication, Loan, fmtWhen } from '../../model';
 import { Card, Money, StatusBadge, StatTile } from '../../primitives';
 import { IconChevronRight, IconInbox, IconBell } from '../../icons';
+import { FirstVisitTip } from '../../onboarding/FirstVisitTip';
 export const StaffInboxScreen: React.FC<{
   applications: LoanApplication[];
   loans: Loan[];
@@ -34,6 +35,11 @@ export const StaffInboxScreen: React.FC<{
           </span>
         </div>
       </div>
+
+      {/* First-visit coaching for the staff inbox */}
+      <FirstVisitTip tipKey="tip-staff-inbox" title="Reviewing applications" tone="neutral">
+        Pending requests sit at the top. Open one to run the AI underwriter, then approve or reject it.
+      </FirstVisitTip>
 
       {/* Summary tiles */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { quote, fmtUSD, fmtUSD0, fmtPct, TIERS, TERM_OPTIONS, DEFAULT_TERM_MONTHS } from '../model';
 import { Card, Button, Money } from '../primitives';
 import { IconApply, IconReview, IconOffer, IconRepay, IconArrowRight, IconShield, IconInfo } from '../icons';
+import { FirstVisitTip } from '../onboarding/FirstVisitTip';
 const STEPS = [{
   icon: IconApply,
   title: 'Apply',
@@ -103,6 +104,12 @@ export const LandingScreen: React.FC<{
         })}
         </div>
       </div>
+
+      {/* First-visit coaching for the estimator */}
+      <FirstVisitTip tipKey="tip-landing" title="Try the estimator">
+        Pick a loan amount <span className="font-semibold">and</span> a repayment term below to see your real
+        monthly payment — the exact number, before you apply.
+      </FirstVisitTip>
 
       {/* Interactive calculator */}
       <Card className="overflow-hidden">

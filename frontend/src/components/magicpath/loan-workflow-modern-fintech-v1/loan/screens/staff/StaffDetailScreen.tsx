@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { LoanApplication, Applicant, CreditAssessment, quote, fmtUSD, fmtPct, fmtWhen } from '../../model';
 import { Card, Button, Money, StatusBadge, Field, inputCls, ProgressRing } from '../../primitives';
 import { IconChevronLeft, IconCheckCircle, IconX, IconUser, IconMail, IconWallet, IconSpark, IconShield } from '../../icons';
+import { FirstVisitTip } from '../../onboarding/FirstVisitTip';
 import * as api from '@/lib/api';
 
 // Higher risk score = safer applicant → green; mid → amber; low → red.
@@ -110,6 +111,12 @@ export const StaffDetailScreen: React.FC<{
         </div>
         <StatusBadge status={application.status} />
       </div>
+
+      {/* First-visit coaching for the review screen */}
+      <FirstVisitTip tipKey="tip-staff-detail" title="You make the final call" tone="neutral" icon={<IconSpark size={17} />}>
+        The AI assessment is advisory. You set the final approved amount — and the term, monthly payment and
+        payment-to-income update as you adjust it.
+      </FirstVisitTip>
 
       {/* Applicant profile */}
       <Card className="p-4 sm:p-6">

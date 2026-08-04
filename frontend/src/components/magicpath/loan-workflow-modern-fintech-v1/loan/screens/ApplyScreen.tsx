@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { quote, fmtPct, fmtUSD, fmtUSD0, TERM_OPTIONS, DEFAULT_TERM_MONTHS } from '../model';
 import { Card, Button, Field, inputCls, Money } from '../primitives';
 import { IconArrowRight, IconChevronLeft, IconLock, IconCheck, IconShield } from '../icons';
+import { FirstVisitTip } from '../onboarding/FirstVisitTip';
 export interface ApplyForm {
   name: string;
   email: string;
@@ -135,6 +136,12 @@ export const ApplyScreen: React.FC<{
             </React.Fragment>;
       })}
       </div>
+
+      {/* First-visit coaching for the application flow */}
+      <FirstVisitTip tipKey="tip-apply" title="Pick your term first">
+        Choose your repayment term to see the monthly payment update as you go. This sends a request — a Northline
+        loan officer reviews it and sets your final amount.
+      </FirstVisitTip>
 
       <Card className="p-6 sm:p-8">
         {/* STEP 0 — amount */}
