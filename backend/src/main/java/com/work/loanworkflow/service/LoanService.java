@@ -608,6 +608,21 @@ public class LoanService {
         return new LoanMessage("Deposit successful. New account balance: " + updated.getAccountBalance(), updated);
     }
 
+    // ==================== DEMO RESET ====================
+    public LoanMessage resetDemoData() { //Wipe all rows from the four data tables so the demo starts fresh (FK-safe)
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("SET FOREIGN_KEY_CHECKS=0");
+            stmt.execute("TRUNCATE TABLE applicants");
+            stmt.execute("TRUNCATE TABLE loan_application");
+            stmt.execute("TRUNCATE TABLE loan");
+            stmt.execute("TRUNCATE TABLE loan_payment");
+            stmt.execute("SET FOREIGN_KEY_CHECKS=1");
+        } catch (SQLException e) {
+            throw new LoanException("Database error: " + e.getMessage());
+        }
+        return new LoanMessage("Demo data reset.", null);
+    }
+
     private LoanApplication mapResultSetToLoan(ResultSet rs) throws SQLException { //Map ResultSet to LoanApplication object
         LoanApplication loan = new LoanApplication(
                 rs.getInt("id"),

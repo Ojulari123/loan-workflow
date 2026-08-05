@@ -5,7 +5,7 @@ USE loan_app_db;
 CREATE TABLE IF NOT EXISTS applicants (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(100) NOT NULL,
     account_balance DECIMAL(12,2) DEFAULT 0.00,
     approved_loan_amount DECIMAL(12,2) DEFAULT 0.00,
     annual_income DECIMAL(12,2) NULL,
