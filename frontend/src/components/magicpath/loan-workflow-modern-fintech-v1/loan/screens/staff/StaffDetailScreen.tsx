@@ -348,7 +348,7 @@ export const StaffDetailScreen: React.FC<{
                 </div>
                 <div>
                   <div className="text-xs text-[#667085]">Monthly payment</div>
-                  <div className="font-semibold tabular-nums text-[#101828]">{fmtUSD(q.monthly)} / mo</div>
+                  <div className="whitespace-nowrap font-semibold tabular-nums text-[#101828]">{fmtUSD(q.monthly)}<span className="font-normal text-[#667085]"> /mo</span></div>
                 </div>
                 <div>
                   <div className="text-xs text-[#667085]">Payment to income</div>
@@ -393,7 +393,7 @@ export const StaffDetailScreen: React.FC<{
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
                     <div className="text-[11px] uppercase tracking-wider text-[#667085]">Monthly payment</div>
-                    <div className="mt-1 block text-base font-semibold tabular-nums text-[#101828]">{fmtUSD(bd.monthly)} / mo</div>
+                    <div className="mt-1 block whitespace-nowrap text-base font-semibold tabular-nums text-[#101828]">{fmtUSD(bd.monthly)}<span className="font-normal text-[#667085]"> /mo</span></div>
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
                     <div className="text-[11px] uppercase tracking-wider text-[#667085]">Payment to income</div>

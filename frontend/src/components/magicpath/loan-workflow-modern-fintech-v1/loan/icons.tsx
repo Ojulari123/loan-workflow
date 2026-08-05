@@ -215,6 +215,6 @@ export const IconLogo = ({
   ...p
 }: IconProps) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...p}>
     <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" />
-    <path d="M7 16V8l5 5 5-5v8" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7 17V7l10 10V7" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   
   </svg>;
