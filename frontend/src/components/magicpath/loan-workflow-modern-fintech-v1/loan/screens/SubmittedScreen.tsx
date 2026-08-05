@@ -52,7 +52,7 @@ export const SubmittedScreen: React.FC<{
           <p className="text-sm leading-relaxed text-[#475467]">
             Thanks, <span className="font-semibold text-[#101828]">{application.applicantName}</span>. Your
             application is <span className="font-semibold text-[#101828]">under review by the Northline team</span>.
-            A loan officer will verify your details and decide on your request — you'll see the outcome here in{' '}
+            A loan officer will verify your details and decide on your request. You'll see the outcome here in{' '}
             <span className="font-medium">My loans</span>.
           </p>
 

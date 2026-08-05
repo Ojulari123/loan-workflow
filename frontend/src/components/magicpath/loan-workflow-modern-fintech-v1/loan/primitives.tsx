@@ -46,7 +46,7 @@ export const StatusBadge: React.FC<{
       <span className="h-1.5 w-1.5 rounded-full" style={{
       backgroundColor: s.dot
     }} />
-      <span className="uppercase tracking-wide">{status}</span>
+      <span className="uppercase tracking-wide">{status.replace('-', ' ')}</span>
     </span>;
 };
 

@@ -14,7 +14,7 @@ const STEPS = [{
 }, {
   icon: IconOffer,
   title: 'Offer & funds',
-  body: 'Accept your offer — your rate and monthly payment are locked for your term.'
+  body: 'Accept your offer. Your rate and monthly payment are locked for your term.'
 }, {
   icon: IconRepay,
   title: 'Repay',
@@ -67,13 +67,13 @@ export const LandingScreen: React.FC<{
       <div className="flex flex-col items-start gap-4">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e6e9ef] bg-white px-3 py-1 text-xs font-medium text-[#475467]">
           <IconShield size={13} className="text-[#2563eb]" />
-          Transparent lending — see your monthly payment before you apply
+          Transparent lending, see your monthly payment before you apply
         </span>
         <h1 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-[#101828] sm:text-4xl">
           Borrow with numbers you can trust.
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-[#475467] sm:text-base">
-          Fixed-rate loans from $500 to $100,000. Pick a term, see your exact monthly payment before you apply,
+          Fixed rate loans from $500 to $100,000. Pick a term, see your exact monthly payment before you apply,
           and pay off early anytime to save on interest.
         </p>
       </div>
@@ -108,7 +108,7 @@ export const LandingScreen: React.FC<{
       {/* First-visit coaching for the estimator */}
       <FirstVisitTip tipKey="tip-landing" title="Try the estimator">
         Pick a loan amount <span className="font-semibold">and</span> a repayment term below to see your real
-        monthly payment — the exact number, before you apply.
+        monthly payment, the exact number, before you apply.
       </FirstVisitTip>
 
       {/* Interactive calculator */}
@@ -180,7 +180,7 @@ export const LandingScreen: React.FC<{
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[#475467]">Interest tier</span>
                 <span className="font-semibold text-[#101828]">
-                  {q.tier.label} · {fmtPct(q.rate)}
+                  {q.tier.label}, {fmtPct(q.rate)}
                 </span>
               </div>
               <div>
@@ -206,7 +206,7 @@ export const LandingScreen: React.FC<{
                 <Money value={q.total} className="font-semibold text-[#101828]" />
               </div>
               <div className="text-xs text-[#667085]">
-                {fmtUSD(q.monthly)} × {q.termMonths} = {fmtUSD(q.total)} · principal {fmtUSD(q.principal)} + interest {fmtUSD(q.interest)}
+                {fmtUSD(q.monthly)} × {q.termMonths} = {fmtUSD(q.total)}, principal {fmtUSD(q.principal)} + interest {fmtUSD(q.interest)}
               </div>
             </div>
 

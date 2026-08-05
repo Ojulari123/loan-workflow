@@ -30,7 +30,7 @@ interface ChatTurn {
 const GREETING: ChatTurn = {
   role: 'assistant',
   content:
-    "Hi! I'm the **Northline Assistant**. Ask me anything about your loan — " +
+    "Hi! I'm the **Northline Assistant**. Ask me anything about your loan, " +
     'whether you can afford it, what happens if you pay extra, how the interest ' +
     "works, or your payoff timeline. I'll use your real numbers.",
 };
@@ -42,7 +42,7 @@ const STARTERS = [
 ] as const;
 
 const UNAVAILABLE_MSG =
-  'The assistant is unavailable right now — try again in a moment.';
+  'The assistant is unavailable right now. Try again in a moment.';
 
 // ---------------------------------------------------------------------------
 // Markdown renderer for assistant messages. Compact, readable styling tuned to
@@ -279,7 +279,7 @@ export const CopilotChat: React.FC<{ applicantId: string | null }> = ({ applican
               </button>
             </form>
             <div className="mt-2 text-center text-[10px] text-[#98a2b3]">
-              Informational only — not binding financial advice.
+              Informational only. Not binding financial advice.
             </div>
           </div>
         </div>

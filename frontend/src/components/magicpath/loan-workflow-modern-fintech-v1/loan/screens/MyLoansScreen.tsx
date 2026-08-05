@@ -69,7 +69,7 @@ export const MyLoansScreen: React.FC<{
                 {/* Status-specific detail */}
                 {app.status === 'PENDING' && <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#fffbeb] px-3 py-2 text-xs font-medium text-[#b45309]">
                     <IconClock size={14} />
-                    Under review by the Northline team · submitted {fmtWhen(app.createdAt)}
+                    Under review by the Northline team, submitted {fmtWhen(app.createdAt)}
                   </div>}
 
                 {app.status === 'REJECTED' && <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#fef2f2] px-3 py-2 text-xs font-medium text-[#b91c1c]">
@@ -99,7 +99,7 @@ export const MyLoansScreen: React.FC<{
                       <span className="inline-flex items-center gap-1.5 text-xs text-[#667085]">
                         {app.status === 'PAID-OFF' ? <>
                             <IconCheckCircle size={14} className="text-[#16a34a]" /> Loan closed
-                          </> : <>Interest {fmtUSD(bd.interest)} · principal {fmtUSD(bd.principal)}</>}
+                          </> : <>Interest {fmtUSD(bd.interest)}, principal {fmtUSD(bd.principal)}</>}
                       </span>
                       <Button variant="secondary" onClick={() => onManage(app.applicationId)}>
                         {app.status === 'PAID-OFF' ? 'View summary' : 'Manage loan'}

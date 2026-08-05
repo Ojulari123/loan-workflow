@@ -105,7 +105,7 @@ export const StaffDetailScreen: React.FC<{
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-[#101828]">Application review</h2>
             <p className="text-xs text-[#98a2b3]">
-              {application.applicationId} · applied {fmtWhen(application.createdAt)}
+              {application.applicationId}, applied {fmtWhen(application.createdAt)}
             </p>
           </div>
         </div>
@@ -114,8 +114,8 @@ export const StaffDetailScreen: React.FC<{
 
       {/* First-visit coaching for the review screen */}
       <FirstVisitTip tipKey="tip-staff-detail" title="You make the final call" tone="neutral" icon={<IconSpark size={17} />}>
-        The AI assessment is advisory. You set the final approved amount — and the term, monthly payment and
-        payment-to-income update as you adjust it.
+        The AI assessment is advisory. You set the final approved amount, and the term, monthly payment and
+        payment to income update as you adjust it.
       </FirstVisitTip>
 
       {/* Applicant profile */}
@@ -216,7 +216,7 @@ export const StaffDetailScreen: React.FC<{
         </div>
 
         {aiStatus === 'idle' && <p className="mt-3 text-sm text-[#667085]">
-          Run an on-demand credit assessment for a risk score, recommendation and key factors. Advisory only — your decision below is final.
+          Run an on-demand credit assessment for a risk score, recommendation and key factors. Advisory only. Your decision below is final.
         </p>}
 
         {aiStatus === 'loading' && <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#e6e9ef] bg-[#f8fafc] px-4 py-3 text-sm font-medium text-[#475467]">
@@ -280,7 +280,7 @@ export const StaffDetailScreen: React.FC<{
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: IMPACT_COLOR[f.impact] ?? IMPACT_COLOR.NEUTRAL }} />
                   <div className="min-w-0 text-sm">
                     <span className="font-semibold text-[#101828]">{f.factor}</span>
-                    {f.detail && <span className="text-[#667085]"> — {f.detail}</span>}
+                    {f.detail && <span className="text-[#667085]">, {f.detail}</span>}
                   </div>
                 </li>)}
               </ul>
@@ -351,7 +351,7 @@ export const StaffDetailScreen: React.FC<{
                   <div className="font-semibold tabular-nums text-[#101828]">{fmtUSD(q.monthly)} / mo</div>
                 </div>
                 <div>
-                  <div className="text-xs text-[#667085]">Payment-to-income</div>
+                  <div className="text-xs text-[#667085]">Payment to income</div>
                   <div className="font-semibold tabular-nums text-[#101828]">{ptiText(q.monthly)}</div>
                 </div>
               </div>
@@ -364,7 +364,7 @@ export const StaffDetailScreen: React.FC<{
           <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
             <Button variant="success" block disabled={!valid || submitting} onClick={() => valid && onApprove(application.applicationId, base)}>
               <IconCheckCircle size={17} />
-              {submitting ? 'Working…' : `Approve — ${fmtUSD(base)} principal`}
+              {submitting ? 'Working…' : `Approve ${fmtUSD(base)} principal`}
             </Button>
             <Button variant="danger" block disabled={submitting} onClick={() => onReject(application.applicationId)}>
               <IconX size={17} />
@@ -384,7 +384,7 @@ export const StaffDetailScreen: React.FC<{
                     <Money value={bd.principal} className="mt-1 block text-base font-semibold text-[#101828]" />
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
-                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Interest · {fmtPct(bd.rate)}</div>
+                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Interest, {fmtPct(bd.rate)}</div>
                     <Money value={bd.interest} className="mt-1 block text-base font-semibold text-[#101828]" />
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
@@ -396,7 +396,7 @@ export const StaffDetailScreen: React.FC<{
                     <div className="mt-1 block text-base font-semibold tabular-nums text-[#101828]">{fmtUSD(bd.monthly)} / mo</div>
                   </div>
                   <div className="rounded-xl border border-[#e6e9ef] p-4">
-                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Payment-to-income</div>
+                    <div className="text-[11px] uppercase tracking-wider text-[#667085]">Payment to income</div>
                     <div className="mt-1 block text-base font-semibold tabular-nums text-[#101828]">{ptiText(bd.monthly)}</div>
                   </div>
                 </div>;

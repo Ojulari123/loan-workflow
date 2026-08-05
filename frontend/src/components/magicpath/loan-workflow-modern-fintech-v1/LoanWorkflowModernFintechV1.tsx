@@ -233,8 +233,21 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
       setBusy(false);
     }
   };
-  const restart = () => {
-    // Resets the local demo view only — it does NOT delete rows from the DB.
+  const restart = async () => {
+    // Reset now ALSO wipes the shared backend demo data so everyone starts
+    // fresh — hence the confirm before we destroy other people's rows too.
+    if (!window.confirm('Reset the demo? This clears all applications, loans, and payments for everyone and starts fresh.')) {
+      return;
+    }
+    try {
+      await api.resetDemo();
+    } catch (e) {
+      // A failed wipe shouldn't strand the user; fall through to the client reset.
+      console.error('resetDemo failed', e);
+    }
+    // Client resets (role, nav, onboarding), then a hard refresh so the now-empty
+    // lists are re-fetched from the backend (a plain re-fetch would keep stale
+    // rows because upsert merges rather than replaces).
     setCustomerApplicantId(null);
     setCustView('landing');
     setCustAppId(null);
@@ -244,7 +257,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
     setRole('customer');
     setError(null);
     resetOnboarding();
-    refreshStaff();
+    window.location.reload();
   };
 
   // ---- Customer router ----------------------------------------------------
@@ -318,7 +331,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
               <div className="leading-tight">
                 <div className="text-sm font-semibold tracking-tight text-[#101828]">Northline Capital</div>
                 <div className="text-[11px] text-[#98a2b3]">
-                  {role === 'customer' ? 'Customer portal · demo' : 'Staff console · demo'}
+                  {role === 'customer' ? 'Customer portal demo' : 'Staff console demo'}
                 </div>
               </div>
             </div>
@@ -330,7 +343,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
               icon: <IconUser size={14} />
             }, {
               value: 'staff',
-              label: 'Northline · Staff',
+              label: 'Northline Staff',
               icon: <IconBriefcase size={14} />,
               badge: pendingCount
             }]} />
@@ -396,7 +409,7 @@ export const LoanWorkflowModernFintechV1: React.FC = () => {
         </main>
 
         <footer className="mt-8 flex items-center justify-center gap-1.5 text-center text-[11px] text-[#98a2b3]">
-          Wired to the live Northline API — both roles read &amp; write the same MySQL-backed records. Field names &amp; status values mirror the production API.
+          Wired to the live Northline API. Both roles read &amp; write the same MySQL-backed records. Field names &amp; status values mirror the production API.
         </footer>
       </div>
 

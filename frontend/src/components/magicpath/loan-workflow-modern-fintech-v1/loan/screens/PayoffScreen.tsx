@@ -61,7 +61,7 @@ export const PayoffScreen: React.FC<{
             </div>
             <div className="rounded-xl border border-[#e6e9ef] p-4">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-[#667085]">
-                Total interest · {fmtPct(rate)}
+                Total interest, {fmtPct(rate)}
               </div>
               <Money value={interest} className="mt-1 block text-xl font-semibold text-[#101828]" />
             </div>
@@ -83,7 +83,7 @@ export const PayoffScreen: React.FC<{
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f0fdf4] text-[#16a34a]">
                       <IconCheck size={13} />
                     </span>
-                    Payment {i + 1} · {new Date(p.paidAt).toLocaleDateString()}
+                    Payment {i + 1}, {new Date(p.paidAt).toLocaleDateString()}
                   </span>
                   <Money value={p.amountPaid} className="font-semibold text-[#101828]" />
                 </li>)}

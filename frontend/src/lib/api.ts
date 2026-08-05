@@ -424,3 +424,15 @@ export function getPaymentsByApplicant(
     normalizePayment,
   );
 }
+
+// ---------------------------------------------------------------------------
+// Demo reset
+// ---------------------------------------------------------------------------
+
+// Wipe ALL demo data (applications, loans, payments, applicants) so every
+// visitor starts from an empty book. POST /api/reset returns the usual
+// { message, data } envelope; we don't need the data, so this resolves once
+// the wipe succeeds.
+export function resetDemo(): Promise<void> {
+  return sendWrapped<unknown>('/api/reset', 'POST').then(() => undefined);
+}

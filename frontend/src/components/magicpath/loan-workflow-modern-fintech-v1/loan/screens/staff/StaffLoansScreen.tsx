@@ -66,7 +66,7 @@ export const StaffLoansScreen: React.FC<{
                   </div>
                   <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-xs text-[#98a2b3]">
                     <span>
-                      Principal {fmtUSD(bd.principal)} · interest {fmtUSD(bd.interest)} ({fmtPct(bd.rate)})
+                      Principal {fmtUSD(bd.principal)}, interest {fmtUSD(bd.interest)} ({fmtPct(bd.rate)})
                     </span>
                     <span className="tabular-nums">{pct.toLocaleString('en-US', {
                   maximumFractionDigits: 0

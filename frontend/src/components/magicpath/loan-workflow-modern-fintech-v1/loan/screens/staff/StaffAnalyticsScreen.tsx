@@ -97,7 +97,7 @@ const FundedTip = ({ active, payload }: any) => {
       <div className="flex items-center justify-between gap-6 text-[#667085]">
         <span>This day</span>
         <span className="tabular-nums text-[#101828]">
-          {fmtUSD(d.daily)} · {d.count} loan{d.count === 1 ? '' : 's'}
+          {fmtUSD(d.daily)}, {d.count} loan{d.count === 1 ? '' : 's'}
         </span>
       </div>
     </Tip>
@@ -214,7 +214,7 @@ export const StaffAnalyticsScreen: React.FC = () => {
         { key: 'PENDING', label: 'Pending', value: kpi.pending },
         { key: 'APPROVED', label: 'Approved', value: kpi.approved },
         { key: 'REJECTED', label: 'Rejected', value: kpi.rejected },
-        { key: 'PAID-OFF', label: 'Paid-off', value: kpi.paidOff },
+        { key: 'PAID-OFF', label: 'Paid off', value: kpi.paidOff },
       ]
         .filter(d => d.value > 0)
         .map(d => ({ ...d, color: STATUS_COLOR[d.key] })),
@@ -318,7 +318,7 @@ export const StaffAnalyticsScreen: React.FC = () => {
         <StatTile label="Outstanding balance" sub="Owed on approved loans">
           {fmtUSD(kpi.outstanding)}
         </StatTile>
-        <StatTile label="Paid-off loans" sub="Fully repaid applications">
+        <StatTile label="Paid off loans" sub="Fully repaid applications">
           {kpi.paidOff}
         </StatTile>
       </div>
@@ -370,7 +370,7 @@ export const StaffAnalyticsScreen: React.FC = () => {
                       {d.label}
                     </span>
                     <span className="tabular-nums text-[#667085]">
-                      <span className="font-semibold text-[#101828]">{d.value}</span> · {totalPct(d.value)}%
+                      <span className="font-semibold text-[#101828]">{d.value}</span>, {totalPct(d.value)}%
                     </span>
                   </li>
                 ))}
@@ -466,6 +466,6 @@ export const StaffAnalyticsScreen: React.FC = () => {
 const Header: React.FC = () => (
   <div>
     <h2 className="text-xl font-semibold tracking-tight text-[#101828]">Portfolio analytics</h2>
-    <p className="mt-1 text-sm text-[#667085]">Northline book overview — computed live from the loan ledger.</p>
+    <p className="mt-1 text-sm text-[#667085]">Northline book overview, computed live from the loan ledger.</p>
   </div>
 );

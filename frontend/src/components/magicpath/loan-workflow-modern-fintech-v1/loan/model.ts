@@ -133,7 +133,7 @@ export const TIERS: readonly Tier[] = [{
 }, {
   rate: 0.05,
   label: 'Tier 2',
-  range: '$10,001 – $50,000'
+  range: '$10,001 to $50,000'
 }, {
   rate: 0.075,
   label: 'Tier 3',
@@ -249,7 +249,7 @@ export const STATUS_STYLES: Record<string, StatusStyle> = {
     ring: '#bfdbfe'
   },
   'PAID-OFF': {
-    label: 'Paid-off',
+    label: 'Paid off',
     dot: '#059669',
     bg: '#f2f7f4',
     text: '#3f6212',

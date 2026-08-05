@@ -139,7 +139,7 @@ export const ApplyScreen: React.FC<{
 
       {/* First-visit coaching for the application flow */}
       <FirstVisitTip tipKey="tip-apply" title="Pick your term first">
-        Choose your repayment term to see the monthly payment update as you go. This sends a request — a Northline
+        Choose your repayment term to see the monthly payment update as you go. This sends a request. A Northline
         loan officer reviews it and sets your final amount.
       </FirstVisitTip>
 
@@ -332,14 +332,14 @@ export const ApplyScreen: React.FC<{
             <div className="flex items-start gap-2 rounded-xl border border-[#fde68a] bg-[#fffbeb] p-3 text-xs leading-relaxed text-[#92400e]">
               <IconShield size={15} className="mt-0.5 shrink-0" />
               <span>
-                This is a <span className="font-semibold">request</span>, not an approval. A Northline loan officer reviews every application — final amount and terms are set by staff, not automatically.
+                This is a <span className="font-semibold">request</span>, not an approval. A Northline loan officer reviews every application. Final amount and terms are set by staff, not automatically.
               </span>
             </div>
 
             <div className="flex flex-col gap-3">
               <Button block onClick={confirm} disabled={submitting} className="py-3 text-base">
                 <IconCheck size={18} />
-                {submitting ? 'Submitting…' : 'Confirm — I want this loan'}
+                {submitting ? 'Submitting…' : 'Confirm, I want this loan'}
               </Button>
               <div className="flex items-center justify-between">
                 <Button variant="ghost" onClick={() => setStep(1)}>

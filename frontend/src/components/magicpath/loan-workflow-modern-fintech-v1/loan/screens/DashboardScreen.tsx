@@ -58,7 +58,7 @@ export const DashboardScreen: React.FC<{
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-[#101828]">Your loan</h2>
           <p className="mt-1 text-sm text-[#667085]">
-            {loan.applicantName} · Loan {loan.id}
+            {loan.applicantName}, Loan {loan.id}
           </p>
         </div>
         <StatusBadge status={loan.status} />
@@ -78,7 +78,7 @@ export const DashboardScreen: React.FC<{
         <StatTile label="Original loan amount" sub="Principal + interest">
           {fmtUSD(loanAmount)}
         </StatTile>
-        <StatTile label="Interest rate" sub={`${bd.tier.label} · ${bd.tier.range}`}>
+        <StatTile label="Interest rate" sub={`${bd.tier.label}, ${bd.tier.range}`}>
           {fmtPct(rate)}
         </StatTile>
         <StatTile label="Loan status" sub={`Issued ${new Date(loan.issuedAt).toLocaleDateString()}`}>

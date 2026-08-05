@@ -113,7 +113,7 @@ export const PaymentScreen: React.FC<{
       {/* First-visit coaching for payments */}
       <FirstVisitTip tipKey="tip-payment" title="Paying from your balance">
         Payments come out of your account balance. If it's low, use{' '}
-        <span className="font-semibold">Add money</span> to top up — then you can pay more, or pay the loan off in
+        <span className="font-semibold">Add money</span> to top up, then you can pay more, or pay the loan off in
         full.
       </FirstVisitTip>
 
@@ -194,7 +194,7 @@ export const PaymentScreen: React.FC<{
 
         <p className="mt-4 flex items-start gap-1.5 text-[11px] leading-relaxed text-[#667085]">
           <IconInfo size={13} className="mt-0.5 shrink-0 text-[#98a2b3]" />
-          Interest was fixed at approval and is already included in your balance — it never grows.
+          Interest was fixed at approval and is already included in your balance. It never grows.
         </p>
 
         <div className="mt-5 flex items-center justify-between">

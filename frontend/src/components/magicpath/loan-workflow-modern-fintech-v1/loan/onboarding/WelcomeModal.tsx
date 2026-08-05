@@ -103,7 +103,7 @@ export const WelcomeModal: React.FC = () => {
           </span>
           <div className="leading-tight">
             <div className="text-sm font-semibold tracking-tight text-[#101828]">Northline Capital</div>
-            <div className="text-[11px] text-[#98a2b3]">Welcome · quick tour</div>
+            <div className="text-[11px] text-[#98a2b3]">Welcome to the quick tour</div>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export const WelcomeModal: React.FC = () => {
             Borrow with numbers you can trust.
           </h2>
           <p className="mt-1.5 text-sm leading-relaxed text-[#475467]">
-            Northline lets you apply for a fixed-rate loan, see your exact monthly payment before you apply,
+            Northline lets you apply for a fixed rate loan, see your exact monthly payment before you apply,
             then track repayment and pay off early to save on interest.
           </p>
 
@@ -141,7 +141,7 @@ export const WelcomeModal: React.FC = () => {
             </span>
             <span>
               Switch between the <span className="font-semibold text-[#101828]">Customer</span> and{' '}
-              <span className="font-semibold text-[#101828]">Northline · Staff</span> views anytime with the toggle
+              <span className="font-semibold text-[#101828]">Northline Staff</span> views anytime with the toggle
               at the top right.
             </span>
           </div>
